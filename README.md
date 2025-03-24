@@ -94,7 +94,6 @@ Required columns:
 
 1. Clone the repository:
 ```bash
-<<<<<<< HEAD
 git clone https://github.com/hegdemanu/investment-recommendation-system
 
 cd investment-recommendation-system
