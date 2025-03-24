@@ -5,8 +5,8 @@ A comprehensive system that analyzes stocks and mutual funds to provide personal
 ## Features
 
 - **Data Analysis**
-  - Stock price analysis (12 stocks)
-  - Mutual fund NAV analysis (6 funds)
+  - Stock price analysis
+  - Mutual fund NAV analysis
   - Technical indicators calculation
   - Feature engineering
 
