@@ -9,7 +9,15 @@ import requests
 from datetime import datetime, timedelta
 import os
 import json
+import glob
+import logging
 
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('DataProcessor')
 
 class DataProcessor:
     """
@@ -21,10 +29,99 @@ class DataProcessor:
         """Initialize the DataProcessor module."""
         self.data = None
         self.market_sentiment = None
+        # Define required columns for different data types
+        self.stock_required_columns = ['Date', 'Price']
+        self.stock_optional_columns = ['Open', 'High', 'Low', 'Vol.', 'Change %']
+        self.mf_required_columns = ['Date', 'NAV']
+    
+    def validate_directory_structure(self, base_dir='./data'):
+        """
+        Ensure all necessary directories exist, create them if they don't.
+        
+        Parameters:
+        -----------
+        base_dir : str
+            Base directory for data storage
+            
+        Returns:
+        --------
+        bool : True if successful
+        """
+        directories = [
+            f'{base_dir}/raw',
+            f'{base_dir}/processed',
+            f'{base_dir}/uploads',
+            './models',
+            './results'
+        ]
+        
+        for directory in directories:
+            if not os.path.exists(directory):
+                try:
+                    os.makedirs(directory)
+                    logger.info(f"Created directory: {directory}")
+                except Exception as e:
+                    logger.error(f"Failed to create directory {directory}: {str(e)}")
+                    return False
+        
+        return True
+
+    def load_and_combine_files(self, pattern, file_type='stock'):
+        """
+        Load multiple CSV files matching a pattern and combine them.
+        Handles missing files gracefully.
+        
+        Parameters:
+        -----------
+        pattern : str
+            Glob pattern to match files, e.g., './data/raw/stock_*.csv'
+        file_type : str
+            Type of file ('stock' or 'mf') to determine required columns
+            
+        Returns:
+        --------
+        pd.DataFrame : Combined data from all files
+        """
+        logger.info(f"Looking for files matching pattern: {pattern}")
+        file_paths = glob.glob(pattern)
+        
+        if not file_paths:
+            logger.warning(f"No files found matching pattern: {pattern}")
+            return pd.DataFrame()
+        
+        logger.info(f"Found {len(file_paths)} files matching pattern")
+        
+        all_data = []
+        for file_path in file_paths:
+            try:
+                # Extract ticker from filename
+                ticker = os.path.basename(file_path).split('.')[0]
+                
+                # Load data
+                df = self.load_from_csv(file_path)
+                
+                if df is not None and not df.empty:
+                    # Add ticker column if not present
+                    if 'ticker' not in df.columns:
+                        df['ticker'] = ticker
+                    
+                    all_data.append(df)
+            except Exception as e:
+                logger.error(f"Error processing file {file_path}: {str(e)}")
+        
+        if not all_data:
+            logger.warning("No valid data found in any files")
+            return pd.DataFrame()
+        
+        # Combine all dataframes
+        combined_data = pd.concat(all_data, ignore_index=True)
+        logger.info(f"Combined data from {len(all_data)} files, total rows: {len(combined_data)}")
+        
+        return combined_data
     
     def load_from_csv(self, file_path):
         """
-        Load investment data from a CSV file.
+        Load investment data from a CSV file with enhanced error handling.
         
         Parameters:
         -----------
@@ -33,17 +130,194 @@ class DataProcessor:
             
         Returns:
         --------
-        pd.DataFrame : Loaded data
+        pd.DataFrame : Cleaned and validated data
         """
-        print(f"Loading data from {file_path}...")
+        logger.info(f"Loading data from {file_path}...")
+        
+        # Check if file exists
+        if not os.path.exists(file_path):
+            logger.error(f"File does not exist: {file_path}")
+            return None
+        
         try:
-            data = pd.read_csv(file_path)
+            # Try different encodings if default fails
+            encodings = ['utf-8', 'latin1', 'ISO-8859-1']
+            
+            for encoding in encodings:
+                try:
+                    # Determine the separator (comma, semicolon, tab)
+                    with open(file_path, 'r', encoding=encoding) as f:
+                        first_line = f.readline()
+                    
+                    if ',' in first_line:
+                        separator = ','
+                    elif ';' in first_line:
+                        separator = ';'
+                    elif '\t' in first_line:
+                        separator = '\t'
+                    else:
+                        separator = ','
+                    
+                    data = pd.read_csv(file_path, sep=separator, encoding=encoding)
+                    break
+                except UnicodeDecodeError:
+                    if encoding == encodings[-1]:
+                        raise
+                    continue
+            
+            logger.info(f"Successfully loaded data with {len(data)} rows and {len(data.columns)} columns.")
+            
+            # Clean and validate data
+            data = self._clean_data(data)
+            
             self.data = data
-            print(f"Successfully loaded data with {len(data)} rows and {len(data.columns)} columns.")
             return data
         except Exception as e:
-            print(f"Error loading CSV file: {str(e)}")
+            logger.error(f"Error loading CSV file: {str(e)}")
             return None
+    
+    def _clean_data(self, data):
+        """
+        Clean and validate data, handling missing values and column format issues.
+        
+        Parameters:
+        -----------
+        data : pd.DataFrame
+            Raw data to clean
+            
+        Returns:
+        --------
+        pd.DataFrame : Cleaned data
+        """
+        if data is None or data.empty:
+            return pd.DataFrame()
+        
+        # Make a copy to avoid modifying the original
+        data = data.copy()
+        
+        # Standardize column names (strip whitespace, check case variations)
+        data.columns = [col.strip() for col in data.columns]
+        
+        # Handle common column name variations
+        column_mappings = {
+            'date': 'Date',
+            'datetime': 'Date',
+            'time': 'Date',
+            'timestamp': 'Date',
+            'close': 'Price',
+            'closing price': 'Price',
+            'price': 'Price',
+            'last price': 'Price',
+            'open': 'Open',
+            'opening price': 'Open',
+            'high': 'High',
+            'highest price': 'High',
+            'low': 'Low',
+            'lowest price': 'Low',
+            'volume': 'Vol.',
+            'vol': 'Vol.',
+            'turnover': 'Vol.',
+            'change': 'Change %',
+            'change%': 'Change %',
+            'pct change': 'Change %',
+            'mutual fund nav': 'NAV',
+            'nav': 'NAV',
+            'net asset value': 'NAV'
+        }
+        
+        # Standardize column names
+        for old_col, new_col in column_mappings.items():
+            if old_col in data.columns:
+                data = data.rename(columns={old_col: new_col})
+        
+        # Identify data type (stock or mutual fund)
+        is_mf = 'NAV' in data.columns
+        
+        # Check for required columns
+        required_cols = self.mf_required_columns if is_mf else self.stock_required_columns
+        missing_cols = [col for col in required_cols if col not in data.columns]
+        
+        if missing_cols:
+            logger.warning(f"Missing required columns: {missing_cols}")
+            
+            # Try to infer missing columns if possible
+            if 'Price' in missing_cols and 'NAV' in data.columns:
+                logger.info("Using NAV as Price")
+                data['Price'] = data['NAV']
+                missing_cols.remove('Price')
+            
+            # If still missing critical columns, return empty DataFrame
+            if 'Date' in missing_cols or ('Price' in missing_cols and 'NAV' not in data.columns):
+                logger.error("Missing critical columns, cannot process data")
+                return pd.DataFrame()
+        
+        # Handle Date column
+        if 'Date' in data.columns:
+            try:
+                # Try to convert Date to datetime format
+                data['Date'] = pd.to_datetime(data['Date'], errors='coerce')
+                
+                # Drop rows with invalid dates
+                invalid_dates = data['Date'].isna()
+                if invalid_dates.any():
+                    logger.warning(f"Dropped {invalid_dates.sum()} rows with invalid dates")
+                    data = data[~invalid_dates]
+                
+                # Sort by date
+                data = data.sort_values('Date')
+            except Exception as e:
+                logger.error(f"Error processing Date column: {str(e)}")
+        
+        # Handle numeric columns
+        numeric_cols = ['Price', 'Open', 'High', 'Low', 'Vol.', 'NAV']
+        for col in numeric_cols:
+            if col in data.columns:
+                # Convert to numeric, coerce errors to NaN
+                data[col] = pd.to_numeric(data[col], errors='coerce')
+        
+        # Calculate missing fields if possible
+        if 'Price' in data.columns and 'Change %' not in data.columns:
+            logger.info("Calculating Change % from Price")
+            data['Change %'] = data['Price'].pct_change() * 100
+        
+        # Fill missing values for technical analysis columns
+        for col in ['Open', 'High', 'Low']:
+            if col not in data.columns and 'Price' in data.columns:
+                logger.info(f"Creating {col} column from Price")
+                data[col] = data['Price']
+        
+        # Handle any remaining NaN values
+        # For Price/NAV, forward/backward fill
+        if 'Price' in data.columns:
+            data['Price'] = data['Price'].fillna(method='ffill').fillna(method='bfill')
+        
+        if 'NAV' in data.columns:
+            data['NAV'] = data['NAV'].fillna(method='ffill').fillna(method='bfill')
+        
+        # For other columns, use more conservative approaches
+        for col in ['Open', 'High', 'Low']:
+            if col in data.columns:
+                # For these, use Price as fallback
+                if 'Price' in data.columns:
+                    data[col] = data[col].fillna(data['Price'])
+        
+        if 'Vol.' in data.columns:
+            # For volume, fill with median to avoid skewing
+            data['Vol.'] = data['Vol.'].fillna(data['Vol.'].median())
+        
+        # Ensure ticker column exists
+        if 'ticker' not in data.columns:
+            file_name = os.path.basename(data.name) if hasattr(data, 'name') else 'unknown'
+            ticker = file_name.split('.')[0]
+            logger.info(f"Adding ticker column with value: {ticker}")
+            data['ticker'] = ticker
+        
+        # Drop any remaining rows with critical NaN values
+        critical_cols = ['Date', 'Price'] if not is_mf else ['Date', 'NAV']
+        data = data.dropna(subset=critical_cols)
+        
+        logger.info(f"After cleaning, data has {len(data)} rows")
+        return data
     
     def load_from_api(self, ticker_list, start_date, end_date, api_key):
         """
@@ -64,12 +338,12 @@ class DataProcessor:
         --------
         pd.DataFrame : Loaded data
         """
-        print(f"Fetching data for {len(ticker_list)} tickers from API...")
+        logger.info(f"Fetching data for {len(ticker_list)} tickers from API...")
         
         all_data = []
         
         for ticker in ticker_list:
-            print(f"Processing ticker: {ticker}")
+            logger.info(f"Processing ticker: {ticker}")
             url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v3/get-historical-data"
             
             querystring = {"symbol": f"{ticker}.NS", "region": "IN"}  # .NS for NSE India
@@ -99,7 +373,8 @@ class DataProcessor:
                             'high': 'High',
                             'low': 'Low',
                             'close': 'Price',
-                            'volume': 'Vol.'
+                            'volume': 'Vol.',
+                            'date': 'Date'
                         }, inplace=True)
                         
                         # Add ticker column
@@ -108,23 +383,29 @@ class DataProcessor:
                         # Calculate daily change percentage
                         df['Change %'] = df['Price'].pct_change() * 100
                         
-                        all_data.append(df)
-                        print(f"Successfully retrieved {len(df)} records for {ticker}")
+                        # Clean the data
+                        df = self._clean_data(df)
+                        
+                        if not df.empty:
+                            all_data.append(df)
+                            logger.info(f"Successfully retrieved {len(df)} records for {ticker}")
+                        else:
+                            logger.warning(f"Data processing resulted in empty dataset for {ticker}")
                     else:
-                        print(f"No price data found for {ticker}")
+                        logger.warning(f"No price data found for {ticker}")
                 else:
-                    print(f"Failed to fetch data for {ticker}: Status code {response.status_code}")
+                    logger.error(f"Failed to fetch data for {ticker}: Status code {response.status_code}")
             except Exception as e:
-                print(f"Error fetching data for {ticker}: {str(e)}")
+                logger.error(f"Error fetching data for {ticker}: {str(e)}")
         
         if all_data:
             combined_data = pd.concat(all_data, ignore_index=True)
             self.data = combined_data
-            print(f"Successfully loaded data with {len(combined_data)} rows for {len(ticker_list)} tickers.")
+            logger.info(f"Successfully loaded data with {len(combined_data)} rows for {len(ticker_list)} tickers.")
             return combined_data
         else:
-            print("Failed to fetch any data from API.")
-            return None
+            logger.warning("Failed to fetch any data from API.")
+            return pd.DataFrame()
     
     def load_fundamental_data(self, ticker_list, api_key):
         """
@@ -495,7 +776,8 @@ class DataProcessor:
     
     def preprocess(self, data=None):
         """
-        Clean and preprocess the data.
+        Preprocess data by calculating technical indicators, handling missing values,
+        and ensuring data is ready for model training.
         
         Parameters:
         -----------
@@ -507,91 +789,79 @@ class DataProcessor:
         pd.DataFrame : Preprocessed data
         """
         if data is None:
-            if self.data is None:
-                raise ValueError("No data loaded. Please load data first.")
             data = self.data
         
-        print("Preprocessing data...")
+        if data is None or data.empty:
+            logger.warning("No data available for preprocessing")
+            return pd.DataFrame()
         
-        # Create a copy to avoid modifying the original
-        df = data.copy()
-        
-        # Ensure we have a Date column (standardize column names)
-        if 'Date' not in df.columns:
-            if 'date' in df.columns:
-                df['Date'] = pd.to_datetime(df['date'])
-                df.drop('date', axis=1, inplace=True)
-            else:
-                raise ValueError("No date column found in data.")
-        else:
-            df['Date'] = pd.to_datetime(df['Date'])
-        
-        # Handle missing values
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        for col in numeric_cols:
-            if df[col].isnull().sum() > 0:
-                print(f"Filling {df[col].isnull().sum()} missing values in column {col}")
-                df[col] = df[col].fillna(df[col].median())
-        
-        # Calculate additional financial metrics if they don't exist
-        if 'Price' in df.columns:
-            # Calculate volatility (20-day rolling standard deviation)
-            if 'ticker' in df.columns:
-                df['Volatility_20d'] = df.groupby('ticker')['Price'].transform(lambda x: x.rolling(window=20).std())
-            else:
-                df['Volatility_20d'] = df['Price'].rolling(window=20).std()
+        try:
+            # Make a copy to avoid modifying the original
+            processed_data = data.copy()
             
-            # Calculate returns (daily and weekly)
-            if 'ticker' in df.columns:
-                df['Daily_Return'] = df.groupby('ticker')['Price'].transform(lambda x: x.pct_change())
-                df['Weekly_Return'] = df.groupby('ticker')['Price'].transform(lambda x: x.pct_change(5))
-            else:
-                df['Daily_Return'] = df['Price'].pct_change()
-                df['Weekly_Return'] = df['Price'].pct_change(5)
-        
-        # Sort by date and ticker if available
-        if 'ticker' in df.columns:
-            df = df.sort_values(['ticker', 'Date'])
-        else:
-            df = df.sort_values('Date')
-        
-        # Calculate PE Ratio if EPS is available
-        if 'EPS' in df.columns and 'Price' in df.columns:
-            df['PE Ratio'] = df['Price'] / df['EPS']
-        
-        # Calculate PEG Ratio if PE Ratio and EPS Growth are available
-        if 'PE Ratio' in df.columns and 'EPS Growth' in df.columns:
-            df['PEG Ratio'] = df['PE Ratio'] / df['EPS Growth']
-        
-        # Calculate Sharpe Ratio (annualized return / annualized volatility)
-        if 'Daily_Return' in df.columns:
-            # Group by ticker if available
-            if 'ticker' in df.columns:
-                # Calculate mean return and std dev for each ticker
-                avg_returns = df.groupby('ticker')['Daily_Return'].mean() * 252  # Annualized
-                std_returns = df.groupby('ticker')['Daily_Return'].std() * np.sqrt(252)  # Annualized
+            # Ensure data is sorted by date
+            if 'Date' in processed_data.columns:
+                processed_data = processed_data.sort_values(['ticker', 'Date'])
+            
+            # Check if data has required columns for technical indicator calculation
+            required_columns = ['Date', 'Price']
+            if not all(col in processed_data.columns for col in required_columns):
+                missing = [col for col in required_columns if col not in processed_data.columns]
+                logger.warning(f"Missing required columns for preprocessing: {missing}")
                 
-                # Create Sharpe Ratio for risk-free rate of 5% (typical for India)
-                sharpe_ratios = (avg_returns - 0.05) / std_returns
+                # Try to recover - if NAV is present but Price is not
+                if 'Price' in missing and 'NAV' in processed_data.columns:
+                    logger.info("Using NAV as Price for preprocessing")
+                    processed_data['Price'] = processed_data['NAV']
+                    missing.remove('Price')
                 
-                # Map Sharpe Ratio back to each row
-                df['Sharpe_Ratio'] = df['ticker'].map(sharpe_ratios)
-            else:
-                # Calculate for the single asset
-                avg_return = df['Daily_Return'].mean() * 252  # Annualized
-                std_return = df['Daily_Return'].std() * np.sqrt(252)  # Annualized
-                
-                # Create Sharpe Ratio for risk-free rate of 5% (typical for India)
-                sharpe_ratio = (avg_return - 0.05) / std_return
-                
-                df['Sharpe_Ratio'] = sharpe_ratio
-        
-        # Drop rows with NaN values created by the rolling calculations
-        initial_rows = len(df)
-        df = df.dropna()
-        dropped_rows = initial_rows - len(df)
-        if dropped_rows > 0:
-            print(f"Dropped {dropped_rows} rows with missing values after calculations")
-        
-        print(f"Preprocessing complete. Final dataset has {len(df)} rows.")
-        return df 
+                # If still missing critical columns, return what we have
+                if missing:
+                    logger.error("Cannot proceed with preprocessing due to missing critical columns")
+                    return processed_data
+            
+            # Calculate technical indicators if possible
+            try:
+                processed_data = self.calculate_technical_indicators(processed_data)
+            except Exception as e:
+                logger.error(f"Error calculating technical indicators: {str(e)}")
+            
+            # Merge sentiment data if available
+            if self.market_sentiment is not None:
+                try:
+                    processed_data = self.merge_sentiment_with_data(processed_data, self.market_sentiment)
+                except Exception as e:
+                    logger.error(f"Error merging sentiment data: {str(e)}")
+            
+            # Handle any remaining missing values
+            numeric_cols = processed_data.select_dtypes(include=['float64', 'int64']).columns
+            for col in numeric_cols:
+                if processed_data[col].isna().any():
+                    # For most indicators, use forward fill then backward fill
+                    fill_method = 'ffill'
+                    processed_data[col] = processed_data[col].fillna(method=fill_method)
+                    
+                    # If still has NaN, use backward fill
+                    if processed_data[col].isna().any():
+                        processed_data[col] = processed_data[col].fillna(method='bfill')
+                    
+                    # If still has NaN, use column median
+                    if processed_data[col].isna().any():
+                        processed_data[col] = processed_data[col].fillna(processed_data[col].median())
+                    
+                    logger.info(f"Filled missing values in column: {col}")
+            
+            # Drop any rows that still have NaN in critical columns
+            critical_cols = ['Date', 'Price']
+            if processed_data[critical_cols].isna().any().any():
+                before_count = len(processed_data)
+                processed_data = processed_data.dropna(subset=critical_cols)
+                after_count = len(processed_data)
+                logger.info(f"Dropped {before_count - after_count} rows with missing values in critical columns")
+            
+            logger.info(f"Preprocessing complete. Final data shape: {processed_data.shape}")
+            return processed_data
+            
+        except Exception as e:
+            logger.error(f"Error during preprocessing: {str(e)}")
+            return data  # Return original data on error 

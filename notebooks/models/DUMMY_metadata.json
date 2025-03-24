@@ -1,0 +1,7 @@
+{
+    "ticker": "DUMMY",
+    "training_date": "2025-03-25",
+    "epochs": 50,
+    "final_loss": 0.0022948142141103745,
+    "final_val_loss": 0.0008117189863696694
+}

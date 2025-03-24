@@ -1,0 +1,14 @@
+Investment Report for DUMMY (conservative risk profile)
+Generated on 2025-03-25 04:48:01
+
+Recommendation: BUY
+
+Expected Returns:
+  Short-term (7 days): 0.25%
+  Medium-term (30 days): 1.53%
+  Long-term (90 days): 1.03%
+
+Expected Volatility:
+  Short-term: 0.18%
+  Medium-term: 0.10%
+  Long-term: 0.07%

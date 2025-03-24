@@ -10,7 +10,19 @@ import json
 import pandas as pd
 from flask import Flask, request, jsonify, send_file, render_template
 from werkzeug.utils import secure_filename
-from datetime import datetime
+from datetime import datetime, timedelta
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('InvestmentRecommendationAPI')
 
 # Import our modules
 from src.data_processor import DataProcessor
@@ -39,6 +51,9 @@ risk_analyzer = RiskAnalyzer()
 recommendation_engine = RecommendationEngine()
 long_term_predictor = LongTermPredictor(models_dir=app.config['MODELS_DIR'])
 report_generator = ReportGenerator(reports_dir=app.config['REPORTS_DIR'])
+
+# Validate directory structure
+data_processor.validate_directory_structure()
 
 # Global variables for cached data
 cached_data = None
@@ -78,6 +93,10 @@ def upload_csv():
         # Load and preprocess data
         try:
             data = data_processor.load_from_csv(filepath)
+            
+            if data is None or data.empty:
+                return jsonify({'error': 'Failed to load data from uploaded file. The file may be empty or in an incorrect format.'}), 400
+            
             processed_data = data_processor.preprocess(data)
             cached_data = processed_data
             
@@ -86,19 +105,113 @@ def upload_csv():
             cached_predictions = None
             cached_long_term_predictions = None
             
+            # Extract tickers if available
+            tickers = list(processed_data['ticker'].unique()) if 'ticker' in processed_data.columns else []
+            
+            # Get sample data structure for info
+            data_sample = {}
+            sample_row = processed_data.iloc[0].to_dict() if not processed_data.empty else {}
+            for key, value in sample_row.items():
+                if isinstance(value, (int, float)):
+                    data_sample[key] = f"{value:.2f}" if isinstance(value, float) else value
+                else:
+                    data_sample[key] = str(value)
+            
             return jsonify({
                 'success': True,
                 'message': f'Successfully loaded and preprocessed {len(processed_data)} records from {filename}',
                 'data_info': {
                     'rows': len(processed_data),
                     'columns': list(processed_data.columns),
-                    'tickers': list(processed_data['ticker'].unique()) if 'ticker' in processed_data.columns else []
+                    'tickers': tickers,
+                    'date_range': {
+                        'start': processed_data['Date'].min().strftime('%Y-%m-%d') if 'Date' in processed_data.columns else None,
+                        'end': processed_data['Date'].max().strftime('%Y-%m-%d') if 'Date' in processed_data.columns else None
+                    },
+                    'sample_data': data_sample
                 }
             })
         except Exception as e:
+            logger.error(f"Error processing uploaded file: {str(e)}")
             return jsonify({'error': f'Error processing data: {str(e)}'}), 500
     
     return jsonify({'error': 'File type not allowed. Please upload a CSV file.'}), 400
+
+@app.route('/api/batch-upload', methods=['POST'])
+def batch_upload():
+    """API endpoint for uploading multiple CSV files."""
+    global cached_data, cached_risk_profiles, cached_predictions, cached_long_term_predictions
+    
+    # Check if files were included in the request
+    if 'files[]' not in request.files:
+        return jsonify({'error': 'No files included in request'}), 400
+    
+    files = request.files.getlist('files[]')
+    
+    if not files or len(files) == 0:
+        return jsonify({'error': 'No files selected'}), 400
+    
+    # Process each file
+    successful_files = []
+    failed_files = []
+    
+    for file in files:
+        if file and file.filename and allowed_file(file.filename):
+            try:
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                successful_files.append(filename)
+            except Exception as e:
+                logger.error(f"Error saving file {file.filename}: {str(e)}")
+                failed_files.append({'name': file.filename, 'error': str(e)})
+        else:
+            if file and file.filename:
+                failed_files.append({'name': file.filename, 'error': 'Invalid file type'})
+    
+    if not successful_files:
+        return jsonify({
+            'error': 'All files failed to upload',
+            'failed_files': failed_files
+        }), 400
+    
+    # Combine and process all successful files
+    try:
+        combined_data = data_processor.load_and_combine_files(f"{app.config['UPLOAD_FOLDER']}/*.csv")
+        
+        if combined_data.empty:
+            return jsonify({
+                'warning': 'Files were uploaded but no valid data could be extracted',
+                'successful_files': successful_files,
+                'failed_files': failed_files
+            }), 200
+        
+        processed_data = data_processor.preprocess(combined_data)
+        cached_data = processed_data
+        
+        # Reset other cached data
+        cached_risk_profiles = None
+        cached_predictions = None 
+        cached_long_term_predictions = None
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully processed {len(successful_files)} files with {len(processed_data)} total rows',
+            'successful_files': successful_files,
+            'failed_files': failed_files,
+            'data_info': {
+                'rows': len(processed_data),
+                'columns': list(processed_data.columns),
+                'tickers': list(processed_data['ticker'].unique()) if 'ticker' in processed_data.columns else []
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error combining and processing files: {str(e)}")
+        return jsonify({
+            'error': f'Error processing data: {str(e)}',
+            'successful_files': successful_files,
+            'failed_files': failed_files
+        }), 500
 
 @app.route('/api/fetch-data', methods=['POST'])
 def fetch_data():
@@ -116,12 +229,27 @@ def fetch_data():
     end_date = data.get('end_date')
     api_key = data.get('api_key')
     
-    if not ticker_list or not start_date or not end_date or not api_key:
-        return jsonify({'error': 'Missing required parameters: ticker_list, start_date, end_date, api_key'}), 400
+    if not ticker_list or not api_key:
+        return jsonify({'error': 'Missing required parameters: ticker_list and api_key are required'}), 400
+    
+    # Set default dates if not provided
+    if not start_date:
+        start_date = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
+        logger.info(f"No start_date provided, using default: {start_date}")
+        
+    if not end_date:
+        end_date = datetime.now().strftime('%Y-%m-%d')
+        logger.info(f"No end_date provided, using default: {end_date}")
     
     # Fetch data from API
     try:
         data = data_processor.load_from_api(ticker_list, start_date, end_date, api_key)
+        
+        if data is None or data.empty:
+            return jsonify({
+                'error': 'Failed to fetch any valid data from API. Please check your ticker symbols or try again later.'
+            }), 400
+            
         processed_data = data_processor.preprocess(data)
         cached_data = processed_data
         
@@ -130,16 +258,22 @@ def fetch_data():
         cached_predictions = None
         cached_long_term_predictions = None
         
+        # Check if we got data for all requested tickers
+        retrieved_tickers = list(processed_data['ticker'].unique()) if 'ticker' in processed_data.columns else []
+        missing_tickers = [ticker for ticker in ticker_list if ticker not in retrieved_tickers]
+        
         return jsonify({
             'success': True,
-            'message': f'Successfully fetched and preprocessed {len(processed_data)} records for {len(ticker_list)} tickers',
+            'message': f'Successfully fetched and preprocessed {len(processed_data)} records for {len(retrieved_tickers)} tickers',
             'data_info': {
                 'rows': len(processed_data),
                 'columns': list(processed_data.columns),
-                'tickers': list(processed_data['ticker'].unique()) if 'ticker' in processed_data.columns else []
+                'tickers': retrieved_tickers,
+                'missing_tickers': missing_tickers
             }
         })
     except Exception as e:
+        logger.error(f"Error fetching data from API: {str(e)}")
         return jsonify({'error': f'Error fetching data: {str(e)}'}), 500
 
 @app.route('/api/train-models', methods=['POST'])
