@@ -96,9 +96,7 @@ Required columns:
 ```bash
 <<<<<<< HEAD
 git clone https://github.com/hegdemanu/investment-recommendation-system
-=======
-git clone [https://github.com/hegdemanu/investment-recommendation-system/blob/main/notebooks/Investment_Recommendation_System.ipynb](https://github.com/hegdemanu/investment-recommendation-system/tree/main)
->>>>>>> 0134dbe345d74fbeff350492e5e53ac49f8b185f
+
 cd investment-recommendation-system
 ```
 
@@ -196,5 +194,5 @@ B G Manu- f20212393@goa.bits-pilani.ac.in
 <<<<<<< HEAD
 Project Link: https://github.com/hegdemanu/investment-recommendation-system/
 =======
-Project Link: [https://github.com/hegdemanu/investment-recommendation-system/blob/main/notebooks/Investment_Recommendation_System.ipynb](https://github.com/hegdemanu/investment-recommendation-system/tree/main)
+Project Link: [https://github.com/hegdemanu/investment-recommendation-system]
 >>>>>>> 0134dbe345d74fbeff350492e5e53ac49f8b185f
