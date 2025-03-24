@@ -191,8 +191,5 @@ The system generates the following outputs:
 ## Contact
 
 B G Manu- f20212393@goa.bits-pilani.ac.in
-<<<<<<< HEAD
 Project Link: https://github.com/hegdemanu/investment-recommendation-system/
-=======
-Project Link: [https://github.com/hegdemanu/investment-recommendation-system]
->>>>>>> 0134dbe345d74fbeff350492e5e53ac49f8b185f
+
