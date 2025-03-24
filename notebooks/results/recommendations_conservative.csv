@@ -1,6 +1,3 @@
 ticker,current_price,recommendation,strength,allocation,expected_return,risk_category,notes
-AAPL,136.3793407575568,Hold,3,0.20568785930440014,0.76746517899422,Medium,Expected return of 0.8% over prediction period. Risk profile: Medium (score: 3.3/10). Price target: $137.43 by 2025-04-24. Recommended allocation: 20.6% of portfolio.
-DUMMY,99.2797965864514,Weak Hold,2,0.24999999999999994,-3.719076773639207,Low,Expected return of -3.7% over prediction period. Risk profile: Low (score: 2.4/10). Price target: $95.59 by 2025-04-24. Recommended allocation: 25.0% of portfolio.
-AMZN,96.48552898787128,Weak Hold,2,0.20751500966268008,-8.538610631580767,Medium,Expected return of -8.5% over prediction period. Risk profile: Medium (score: 3.3/10). Price target: $88.25 by 2025-04-24. Recommended allocation: 20.8% of portfolio.
-MSFT,63.99862561124552,Weak Hold,2,0.07089107270898673,0.7113842832749739,Medium,Expected return of 0.7% over prediction period. Risk profile: Medium (score: 5.7/10). Price target: $64.45 by 2025-04-24. Recommended allocation: 7.1% of portfolio.
-GOOGL,74.87812896478601,Weak Hold,2,0.2659060583239331,-6.270444480763604,Low,Expected return of -6.3% over prediction period. Risk profile: Low (score: 2.9/10). Price target: $70.18 by 2025-04-24. Recommended allocation: 26.6% of portfolio.
+GOOGL,77.2586162629194,Weak Hold,2,0.5,0.9552262605595052,Medium,Expected return of 1.0% over prediction period. Risk profile: Medium (score: 5.6/10). Price target: $78.00 by 2025-04-24. Recommended allocation: 50.0% of portfolio.
+AAPL,119.63279000849549,Hold,3,0.5,2.146375138300338,Medium,Expected return of 2.1% over prediction period. Risk profile: Medium (score: 4.2/10). Price target: $122.20 by 2025-04-24. Recommended allocation: 50.0% of portfolio.
