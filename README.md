@@ -5,8 +5,8 @@ A comprehensive system that analyzes stocks and mutual funds to provide personal
 ## Features
 
 - **Data Analysis**
-  - Stock price analysis (12 stocks)
-  - Mutual fund NAV analysis (6 funds)
+  - Stock price analysis
+  - Mutual fund NAV analysis
   - Technical indicators calculation
   - Feature engineering
 
@@ -94,7 +94,11 @@ Required columns:
 
 1. Clone the repository:
 ```bash
+<<<<<<< HEAD
 git clone https://github.com/hegdemanu/investment-recommendation-system
+=======
+git clone [https://github.com/hegdemanu/investment-recommendation-system/blob/main/notebooks/Investment_Recommendation_System.ipynb](https://github.com/hegdemanu/investment-recommendation-system/tree/main)
+>>>>>>> 0134dbe345d74fbeff350492e5e53ac49f8b185f
 cd investment-recommendation-system
 ```
 
@@ -189,4 +193,8 @@ The system generates the following outputs:
 ## Contact
 
 B G Manu- f20212393@goa.bits-pilani.ac.in
+<<<<<<< HEAD
 Project Link: https://github.com/hegdemanu/investment-recommendation-system/
+=======
+Project Link: [https://github.com/hegdemanu/investment-recommendation-system/blob/main/notebooks/Investment_Recommendation_System.ipynb](https://github.com/hegdemanu/investment-recommendation-system/tree/main)
+>>>>>>> 0134dbe345d74fbeff350492e5e53ac49f8b185f
