@@ -94,7 +94,7 @@ Required columns:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/hegdemanu/investment-recommendation-system/blob/main/notebooks/Investment_Recommendation_System.ipynb
+git clone https://github.com/hegdemanu/investment-recommendation-system
 cd investment-recommendation-system
 ```
 
@@ -189,4 +189,4 @@ The system generates the following outputs:
 ## Contact
 
 B G Manu- f20212393@goa.bits-pilani.ac.in
-Project Link: https://github.com/hegdemanu/investment-recommendation-system/blob/main/notebooks/Investment_Recommendation_System.ipynb
+Project Link: https://github.com/hegdemanu/investment-recommendation-system/
