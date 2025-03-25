@@ -1,0 +1,17 @@
+{
+  "model_name": "LSTM_AAPL_30d",
+  "training_date": "2023-09-15",
+  "epochs": 100,
+  "batch_size": 32,
+  "sequence_length": 60,
+  "prediction_horizon": 30,
+  "features": ["Close", "Volume", "RSI", "MACD", "EMA"],
+  "metrics": {
+    "loss": 0.0012,
+    "val_loss": 0.0015,
+    "mae": 0.0245,
+    "val_mae": 0.0267
+  },
+  "training_time": "00:15:32",
+  "notes": "Model trained on 5 years of historical data"
+}
