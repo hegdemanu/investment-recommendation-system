@@ -117,8 +117,7 @@ investment-recommendation-system/
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd investment-recommendation-system
+git clone <https://github.com/hegdemanu/investment-recommendation-system>
 ```
 
 2. Create and activate a conda environment:
