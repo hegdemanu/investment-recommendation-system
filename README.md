@@ -154,6 +154,66 @@ The interactive dashboard provides:
 - **JSON Report Viewer**: Interactive viewer for detailed JSON reports
 - **Data Browser**: Access to raw and processed data files
 
+## Dashboard Preview
+
+![Dashboard Overview](docs/images/dashboard_preview.png)
+
+The investment recommendation system generates an interactive dashboard with:
+
+- **Price Predictions**: Visual display of model predictions across different time horizons
+- **Portfolio Allocation**: Interactive pie charts for sector-based diversification
+- **Performance Metrics**: Accuracy visualization and comparison between models
+- **JSON Viewer**: Built-in viewer for examining detailed model metadata and results
+- **Responsive Design**: Adapts to different screen sizes with mobile-friendly controls
+
+To generate and view the dashboard:
+```bash
+# Generate the dashboard
+python run_investment_system.py dashboard
+
+# Manually open in browser if it doesn't open automatically
+open results/dashboard/investment_dashboard.html  # On macOS
+# or simply navigate to this file in your file explorer and double-click
+```
+
+## Dashboard Gallery
+
+### Portfolio Allocation & Sector Diversification
+![Portfolio Allocation](docs/images/renamed/portfolio_allocation.png)
+
+### Performance Metrics & Training Results
+![Performance Metrics](docs/images/renamed/performance_metrics.png)
+
+### Stock Price Predictions
+![Stock Predictions](docs/images/renamed/stock_predictions.png)
+
+### Dashboard Overview
+![Dashboard Overview](docs/images/renamed/dashboard_overview.png)
+
+### Mobile Responsive View
+![Mobile View](docs/images/renamed/mobile_view.png)
+
+### JSON Data Viewer
+![JSON Viewer](docs/images/renamed/json_viewer.png)
+
+### Risk Analysis & Recommendations
+![Risk Analysis](docs/images/renamed/risk_analysis.png)
+
+### Training Metrics Visualization
+![Training Metrics](docs/images/renamed/training_metrics.png)
+
+### Time Horizon Comparison
+![Time Horizon Comparison](docs/images/renamed/time_horizon.png)
+
+### Portfolio Diversification Details
+![Diversification Details](docs/images/renamed/diversification.png)
+
+### Model Comparison & Accuracy
+![Model Comparison](docs/images/renamed/model_comparison.png)
+
+### Data File Browser
+![Data Browser](docs/images/renamed/data_browser.png)
+
 ## Model Details
 
 The system uses three complementary models for price prediction:
@@ -177,20 +237,6 @@ The system uses three complementary models for price prediction:
 - **Prediction Horizons**: 1, 3, 5, 7, 14, 21, and 30 days
 - **Training Data**: Minimum 6 months of historical data
 - **Validation**: Train-test split (80/20) with sliding window evaluation
-
-## Dashboard Preview
-
-![Dashboard Overview](docs/images/dashboard_preview.png)
-
-The investment recommendation system generates an interactive dashboard with:
-
-- **Price Predictions**: Visual display of model predictions across different time horizons
-- **Portfolio Allocation**: Interactive pie charts for sector-based diversification
-- **Performance Metrics**: Accuracy visualization and comparison between models
-- **JSON Viewer**: Built-in viewer for examining detailed model metadata and results
-- **Responsive Design**: Adapts to different screen sizes with mobile-friendly controls
-
-For a live demo, run: `python run_investment_system.py dashboard`
 
 ## Contributing
 
