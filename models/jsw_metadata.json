@@ -1,6 +1,6 @@
 {
   "ticker": "jsw",
-  "training_date": "2025-03-25 06:49:13",
+  "training_date": "2025-03-25 07:37:38",
   "features": [
     "Price",
     "Open",
@@ -10,9 +10,9 @@
     "Change %"
   ],
   "sequence_length": 60,
-  "epochs": 26,
-  "final_train_loss": 0.017284467816352844,
-  "final_val_loss": 0.013592678122222424,
+  "epochs": 15,
+  "final_train_loss": 0.0186103917658329,
+  "final_val_loss": 0.017500460147857666,
   "training_samples": 128,
   "validation_samples": 32,
   "prediction_horizons": [
@@ -23,6 +23,6 @@
     21,
     30
   ],
-  "best_horizon": 14,
-  "best_horizon_rmse": 0.08583895641214277
+  "best_horizon": 7,
+  "best_horizon_rmse": 0.08717560982085533
 }

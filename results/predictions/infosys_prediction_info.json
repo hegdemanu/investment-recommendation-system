@@ -1,12 +1,29 @@
 {
   "ticker": "infosys",
-  "best_horizon_days": 3,
+  "best_horizon_days": 1,
   "days_predicted": 30,
   "start_date": "2025-01-01",
   "end_date": "2025-01-31",
   "start_price": 1882.5,
-  "end_price": 1885.180637946725,
-  "expected_return_percent": 0.14239776609428212,
+  "end_price": 1794.956679275632,
+  "expected_return_percent": -4.650375602888069,
   "prediction_data": "./results/predictions/infosys_predictions.csv",
-  "prediction_plot": "./results/predictions/infosys_future_prediction.png"
+  "prediction_plot": "./results/predictions/infosys_future_prediction.png",
+  "model_weights": {
+    "short": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "medium": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "long": {
+      "lstm": 0.2,
+      "arima_garch": 0.4,
+      "prophet": 0.4
+    }
+  }
 }

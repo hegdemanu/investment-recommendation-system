@@ -1,6 +1,6 @@
 {
   "ticker": "titan",
-  "training_date": "2025-03-25 06:49:25",
+  "training_date": "2025-03-25 07:37:49",
   "features": [
     "Price",
     "Open",
@@ -10,9 +10,9 @@
     "Change %"
   ],
   "sequence_length": 60,
-  "epochs": 27,
-  "final_train_loss": 0.019118938595056534,
-  "final_val_loss": 0.02883637696504593,
+  "epochs": 25,
+  "final_train_loss": 0.02025563269853592,
+  "final_val_loss": 0.025889715179800987,
   "training_samples": 128,
   "validation_samples": 32,
   "prediction_horizons": [
@@ -24,5 +24,5 @@
     30
   ],
   "best_horizon": 1,
-  "best_horizon_rmse": 0.10077504055098432
+  "best_horizon_rmse": 0.09551867642509168
 }

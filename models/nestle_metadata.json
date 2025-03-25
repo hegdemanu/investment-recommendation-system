@@ -1,6 +1,6 @@
 {
   "ticker": "nestle",
-  "training_date": "2025-03-25 06:50:11",
+  "training_date": "2025-03-25 07:38:25",
   "features": [
     "Price",
     "Open",
@@ -11,8 +11,8 @@
   ],
   "sequence_length": 60,
   "epochs": 12,
-  "final_train_loss": 0.027887456119060516,
-  "final_val_loss": 0.11999274790287018,
+  "final_train_loss": 0.024263257160782814,
+  "final_val_loss": 0.10162529349327087,
   "training_samples": 128,
   "validation_samples": 32,
   "prediction_horizons": [
@@ -23,6 +23,6 @@
     21,
     30
   ],
-  "best_horizon": 3,
-  "best_horizon_rmse": 0.20252943633917223
+  "best_horizon": 1,
+  "best_horizon_rmse": 0.15515806585700043
 }

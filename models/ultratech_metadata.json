@@ -1,6 +1,6 @@
 {
   "ticker": "ultratech",
-  "training_date": "2025-03-25 06:49:54",
+  "training_date": "2025-03-25 07:38:11",
   "features": [
     "Price",
     "Open",
@@ -10,9 +10,9 @@
     "Change %"
   ],
   "sequence_length": 60,
-  "epochs": 12,
-  "final_train_loss": 0.027353208512067795,
-  "final_val_loss": 0.029116671532392502,
+  "epochs": 18,
+  "final_train_loss": 0.019063672050833702,
+  "final_val_loss": 0.023743413388729095,
   "training_samples": 128,
   "validation_samples": 32,
   "prediction_horizons": [
@@ -23,6 +23,6 @@
     21,
     30
   ],
-  "best_horizon": 3,
-  "best_horizon_rmse": 0.08303488430075322
+  "best_horizon": 1,
+  "best_horizon_rmse": 0.08479781126019699
 }

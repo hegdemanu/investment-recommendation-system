@@ -21,6 +21,20 @@ DATA_DIR = "./data/stocks"
 # Create output directory if it doesn't exist
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
+# Define time horizons
+TIME_HORIZONS = {
+    'short': [1, 3, 5],      # Short-term: 1-5 days
+    'medium': [7, 14, 15],   # Medium-term: 7-15 days (added 15 as boundary)
+    'long': [21, 30]         # Long-term: 21+ days
+}
+
+# Default model weights if not found (100% LSTM for first 15 days)
+DEFAULT_MODEL_WEIGHTS = {
+    'short': {'lstm': 1.0, 'arima_garch': 0.0, 'prophet': 0.0},  # 100% LSTM for short term
+    'medium': {'lstm': 1.0, 'arima_garch': 0.0, 'prophet': 0.0}, # 100% LSTM for medium term up to 15 days
+    'long': {'lstm': 0.2, 'arima_garch': 0.4, 'prophet': 0.4}    # Distribution like MF for long term
+}
+
 def load_data(filename):
     """Load and preprocess data from a CSV file."""
     print(f"Loading data from {filename}")
@@ -92,6 +106,16 @@ def predict_future(model_trainer, data, ticker):
             print(f"Failed to load model for {ticker}")
             return None
         
+        # Load model weights if available
+        weights_path = os.path.join(MODELS_DIR, f"stocks/{ticker}_weights.json")
+        if os.path.exists(weights_path):
+            with open(weights_path, 'r') as f:
+                model_weights = json.load(f)
+            print(f"Loaded custom model weights for {ticker}")
+        else:
+            model_weights = DEFAULT_MODEL_WEIGHTS
+            print(f"Using default model weights for {ticker} (100% LSTM for first 15 days)")
+        
         # Filter data for this ticker
         ticker_data = data[data['ticker'] == ticker].copy()
         
@@ -115,7 +139,7 @@ def predict_future(model_trainer, data, ticker):
             return None
             
         # Get prediction horizons info for best horizon
-        horizons_path = os.path.join(MODELS_DIR, f"{ticker}_horizons.pkl")
+        horizons_path = os.path.join(MODELS_DIR, f"stocks/{ticker}_horizons.pkl")
         best_horizon = 1  # Default if not found
         
         if os.path.exists(horizons_path):
@@ -135,6 +159,24 @@ def predict_future(model_trainer, data, ticker):
             'ticker': ticker
         })
         
+        # Add weight information for each prediction day
+        prediction_df['day_number'] = range(1, days_ahead + 1)
+        prediction_df['lstm_weight'] = prediction_df['day_number'].apply(
+            lambda x: model_weights['short']['lstm'] if x <= 5 else
+                      model_weights['medium']['lstm'] if x <= 15 else
+                      model_weights['long']['lstm']
+        )
+        prediction_df['arima_garch_weight'] = prediction_df['day_number'].apply(
+            lambda x: model_weights['short']['arima_garch'] if x <= 5 else
+                      model_weights['medium']['arima_garch'] if x <= 15 else
+                      model_weights['long']['arima_garch']
+        )
+        prediction_df['prophet_weight'] = prediction_df['day_number'].apply(
+            lambda x: model_weights['short']['prophet'] if x <= 5 else
+                      model_weights['medium']['prophet'] if x <= 15 else
+                      model_weights['long']['prophet']
+        )
+        
         # Plot historical data and predictions
         plt.figure(figsize=(12, 6))
         
@@ -148,8 +190,13 @@ def predict_future(model_trainer, data, ticker):
         # Add vertical line at the prediction start
         plt.axvline(x=last_date, color='green', linestyle='-', alpha=0.5)
         
+        # Add vertical line at day 15 to show weighting transition
+        transition_date = last_date + timedelta(days=15)
+        plt.axvline(x=transition_date, color='orange', linestyle='--', alpha=0.5)
+        plt.text(transition_date, plt.ylim()[0], 'Weight Transition', ha='center', va='bottom', color='orange')
+        
         # Format plot
-        plt.title(f'LSTM Price Predictions for {ticker} - Next {days_ahead} Days')
+        plt.title(f'LSTM Price Predictions for {ticker} - Next {days_ahead} Days\n100% LSTM for first 15 days, weighted ensemble after')
         plt.xlabel('Date')
         plt.ylabel('Price')
         plt.legend()
@@ -183,7 +230,8 @@ def predict_future(model_trainer, data, ticker):
             'end_price': float(end_price),
             'expected_return_percent': float(expected_return),
             'prediction_data': csv_path,
-            'prediction_plot': plot_path
+            'prediction_plot': plot_path,
+            'model_weights': model_weights
         }
         
         # Save result as JSON
@@ -192,6 +240,7 @@ def predict_future(model_trainer, data, ticker):
             json.dump(result, f, indent=2)
             
         print(f"Generated predictions for {ticker}: Expected return over {days_ahead} days = {expected_return:.2f}%")
+        print(f"Using 100% LSTM for first 15 days, then weighted distribution like mutual funds")
         return result
         
     except Exception as e:

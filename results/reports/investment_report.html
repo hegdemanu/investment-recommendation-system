@@ -13,6 +13,7 @@
                 max-width: 1200px;
                 margin: 0 auto;
                 padding: 20px;
+                background-color: #f5f5f5;
             }
             header {
                 background-color: #2c3e50;
@@ -21,6 +22,7 @@
                 text-align: center;
                 border-radius: 8px;
                 margin-bottom: 30px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
             h1, h2, h3 {
                 color: #2c3e50;
@@ -32,27 +34,41 @@
                 color: #7f8c8d;
                 font-style: italic;
                 margin-bottom: 20px;
+                text-align: right;
+                padding-right: 20px;
             }
             .section {
                 margin-bottom: 40px;
-                background-color: #f9f9f9;
-                padding: 20px;
+                background-color: white;
+                padding: 25px;
                 border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             }
             .chart-container {
                 text-align: center;
                 margin: 30px 0;
+                padding: 15px;
+                background-color: #f9f9f9;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             }
             .chart-container img {
                 max-width: 100%;
                 border-radius: 8px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             }
+            .chart-container p {
+                margin-top: 15px;
+                font-style: italic;
+                color: #7f8c8d;
+            }
             table {
                 width: 100%;
                 border-collapse: collapse;
                 margin: 20px 0;
+                box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+                border-radius: 5px;
+                overflow: hidden;
             }
             th, td {
                 padding: 12px 15px;
@@ -78,10 +94,14 @@
             .metric-box {
                 background-color: white;
                 border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                padding: 15px;
-                width: 48%;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                width: 45%;
                 margin-bottom: 20px;
+                transition: transform 0.3s ease;
+            }
+            .metric-box:hover {
+                transform: translateY(-5px);
             }
             .metric-value {
                 font-size: 24px;
@@ -92,7 +112,7 @@
                 color: #27ae60;
             }
             .status-failed {
-                color: #c0392b;
+                color: #e74c3c;
             }
             .recommendation-container {
                 display: flex;
@@ -102,16 +122,27 @@
             .recommendation-box {
                 background-color: white;
                 border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                 padding: 20px;
-                width: 48%;
+                width: 45%;
                 margin-bottom: 20px;
+                transition: transform 0.3s ease;
+            }
+            .recommendation-box:hover {
+                transform: translateY(-5px);
             }
             .footer {
                 text-align: center;
                 margin-top: 40px;
                 color: #7f8c8d;
                 font-size: 14px;
+                padding: 20px;
+                border-top: 1px solid #ddd;
+            }
+            @media (max-width: 768px) {
+                .metric-box, .recommendation-box {
+                    width: 100%;
+                }
             }
         </style>
     </head>
@@ -122,7 +153,7 @@
         </header>
         
         <div class="date">
-            Generated on: 2025-03-25 07:20:22
+            Generated on: 2025-03-25 08:09:39
         </div>
         
         <div class="section">
@@ -178,6 +209,41 @@
                             <th>Best Horizon</th>
                         </tr>
                         
+        <tr>
+            <td>1</td>
+            <td>wipro</td>
+            <td>0.0580</td>
+            <td>14 days</td>
+        </tr>
+        
+        <tr>
+            <td>2</td>
+            <td>ADNA</td>
+            <td>0.0593</td>
+            <td>1 days</td>
+        </tr>
+        
+        <tr>
+            <td>3</td>
+            <td>icici</td>
+            <td>0.0721</td>
+            <td>1 days</td>
+        </tr>
+        
+        <tr>
+            <td>4</td>
+            <td>titan</td>
+            <td>0.0735</td>
+            <td>1 days</td>
+        </tr>
+        
+        <tr>
+            <td>5</td>
+            <td>ultratech</td>
+            <td>0.0739</td>
+            <td>1 days</td>
+        </tr>
+        
                     </table>
                 </div>
                 
@@ -191,6 +257,41 @@
                             <th>Best Horizon</th>
                         </tr>
                         
+        <tr>
+            <td>1</td>
+            <td>Birla</td>
+            <td>0.0181</td>
+            <td>1 days</td>
+        </tr>
+        
+        <tr>
+            <td>2</td>
+            <td>sbi</td>
+            <td>0.0464</td>
+            <td>3 days</td>
+        </tr>
+        
+        <tr>
+            <td>3</td>
+            <td>icici</td>
+            <td>0.0568</td>
+            <td>1 days</td>
+        </tr>
+        
+        <tr>
+            <td>4</td>
+            <td>axis</td>
+            <td>0.0596</td>
+            <td>1 days</td>
+        </tr>
+        
+            <tr>
+                <td>5</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            
                     </table>
                 </div>
             </div>
@@ -207,7 +308,91 @@
                     <th>Status</th>
                     <th>Training Time (s)</th>
                 </tr>
-                <tr><td>jsw</td><td>250</td><td class='status-success'>SUCCESS</td><td>6.31</td></tr><tr><td>titan</td><td>250</td><td class='status-success'>SUCCESS</td><td>5.17</td></tr><tr><td>ADNA</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.64</td></tr><tr><td>wipro</td><td>250</td><td class='status-success'>SUCCESS</td><td>10.25</td></tr><tr><td>ultratech</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.73</td></tr><tr><td>infosys</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.55</td></tr><tr><td>nestle</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.58</td></tr><tr><td>Apollo</td><td>250</td><td class='status-success'>SUCCESS</td><td>4.17</td></tr><tr><td>bajaj</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.98</td></tr><tr><td>asian</td><td>250</td><td class='status-success'>SUCCESS</td><td>13.47</td></tr><tr><td>icici</td><td>250</td><td class='status-success'>SUCCESS</td><td>6.07</td></tr><tr><td>ongc</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.60</td></tr>
+                
+        <tr>
+            <td>jsw</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>6.31</td>
+        </tr>
+        
+        <tr>
+            <td>titan</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>5.17</td>
+        </tr>
+        
+        <tr>
+            <td>ADNA</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>3.64</td>
+        </tr>
+        
+        <tr>
+            <td>wipro</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>10.25</td>
+        </tr>
+        
+        <tr>
+            <td>ultratech</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>3.73</td>
+        </tr>
+        
+        <tr>
+            <td>infosys</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>3.55</td>
+        </tr>
+        
+        <tr>
+            <td>nestle</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>3.58</td>
+        </tr>
+        
+        <tr>
+            <td>Apollo</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>4.17</td>
+        </tr>
+        
+        <tr>
+            <td>bajaj</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>3.98</td>
+        </tr>
+        
+        <tr>
+            <td>asian</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>13.47</td>
+        </tr>
+        
+        <tr>
+            <td>icici</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>6.07</td>
+        </tr>
+        
+        <tr>
+            <td>ongc</td>
+            <td>250</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>3.60</td>
+        </tr>
+        
             </table>
             
             <h3>Mutual Fund Training Details</h3>
@@ -218,7 +403,42 @@
                     <th>Status</th>
                     <th>Training Time (s)</th>
                 </tr>
-                <tr><td>icici</td><td>466</td><td class='status-success'>SUCCESS</td><td>7.77</td></tr><tr><td>Tata</td><td>N/A</td><td class='status-failed'>FAILED</td><td>N/A</td></tr><tr><td>sbi</td><td>929</td><td class='status-success'>SUCCESS</td><td>7.82</td></tr><tr><td>Birla</td><td>1371</td><td class='status-success'>SUCCESS</td><td>18.24</td></tr><tr><td>axis</td><td>300</td><td class='status-success'>SUCCESS</td><td>6.15</td></tr>
+                
+        <tr>
+            <td>icici</td>
+            <td>466</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>7.77</td>
+        </tr>
+        
+        <tr>
+            <td>Tata</td>
+            <td>N/A</td>
+            <td class='status-failed'>FAILED</td>
+            <td>N/A</td>
+        </tr>
+        
+        <tr>
+            <td>sbi</td>
+            <td>929</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>7.82</td>
+        </tr>
+        
+        <tr>
+            <td>Birla</td>
+            <td>1371</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>18.24</td>
+        </tr>
+        
+        <tr>
+            <td>axis</td>
+            <td>300</td>
+            <td class='status-success'>SUCCESS</td>
+            <td>6.15</td>
+        </tr>
+        
             </table>
         </div>
         

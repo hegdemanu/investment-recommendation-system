@@ -41,6 +41,27 @@ os.makedirs(os.path.join(MODELS_DIR, "stocks"), exist_ok=True)
 os.makedirs(os.path.join(MODELS_DIR, "mutual_funds"), exist_ok=True)
 os.makedirs(os.path.join(RESULTS_DIR, "training"), exist_ok=True)
 
+# Define time horizons
+TIME_HORIZONS = {
+    'short': [1, 3, 5],      # Short-term: 1-5 days
+    'medium': [7, 14, 15],   # Medium-term: 7-15 days (added 15 as boundary)
+    'long': [21, 30, 60, 90] # Long-term: 21+ days
+}
+
+# Model weights by horizon for stocks (100% LSTM for first 15 days)
+STOCK_MODEL_WEIGHTS = {
+    'short': {'lstm': 1.0, 'arima_garch': 0.0, 'prophet': 0.0},  # 100% LSTM for short term
+    'medium': {'lstm': 1.0, 'arima_garch': 0.0, 'prophet': 0.0}, # 100% LSTM for medium term up to 15 days
+    'long': {'lstm': 0.2, 'arima_garch': 0.4, 'prophet': 0.4}    # Distribution like MF for long term
+}
+
+# Model weights by horizon for mutual funds (for reference)
+MF_MODEL_WEIGHTS = {
+    'short': {'lstm': 0.5, 'arima_garch': 0.3, 'prophet': 0.2},
+    'medium': {'lstm': 0.4, 'arima_garch': 0.3, 'prophet': 0.3},
+    'long': {'lstm': 0.2, 'arima_garch': 0.4, 'prophet': 0.4}  # More weight to ARIMA-GARCH and Prophet for long-term
+}
+
 def load_stock_data(filename):
     """Load and preprocess stock data from a CSV file."""
     logger.info(f"Loading stock data from {filename}")
@@ -149,6 +170,18 @@ def load_mf_data(filename):
         logger.error(f"Error loading mutual fund data: {str(e)}")
         return None
 
+def save_model_weights(ticker, weights, models_dir):
+    """Save model weights for a specific ticker."""
+    try:
+        weights_path = os.path.join(models_dir, f"{ticker}_weights.json")
+        with open(weights_path, 'w') as f:
+            json.dump(weights, f, indent=2)
+        logger.info(f"Model weights saved to {weights_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Error saving model weights for {ticker}: {str(e)}")
+        return False
+
 def train_stock_models():
     """Train models for all stock files in the stocks directory."""
     # Get all CSV files in the stocks directory
@@ -193,6 +226,9 @@ def train_stock_models():
                 # Get model metrics
                 model_info = models['models'][ticker]
                 
+                # Save model weights (100% LSTM for first 15 days)
+                save_model_weights(ticker, STOCK_MODEL_WEIGHTS, os.path.join(MODELS_DIR, "stocks"))
+                
                 # Save results
                 training_results[ticker] = {
                     'ticker': ticker,
@@ -201,6 +237,7 @@ def train_stock_models():
                     'loss': model_info.get('loss', 'N/A'),
                     'features_used': model_info.get('features', []),
                     'model_saved': True,
+                    'model_weights': STOCK_MODEL_WEIGHTS,
                     'model_path': os.path.join(MODELS_DIR, "stocks", f"{ticker}_lstm.h5"),
                     'status': 'SUCCESS'
                 }

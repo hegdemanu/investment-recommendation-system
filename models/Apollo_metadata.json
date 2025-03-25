@@ -1,6 +1,6 @@
 {
   "ticker": "Apollo",
-  "training_date": "2025-03-25 06:50:19",
+  "training_date": "2025-03-25 07:38:33",
   "features": [
     "Price",
     "Open",
@@ -11,8 +11,8 @@
   ],
   "sequence_length": 60,
   "epochs": 15,
-  "final_train_loss": 0.020228764042258263,
-  "final_val_loss": 0.019351370632648468,
+  "final_train_loss": 0.021404525265097618,
+  "final_val_loss": 0.015199367888271809,
   "training_samples": 128,
   "validation_samples": 32,
   "prediction_horizons": [
@@ -24,5 +24,5 @@
     30
   ],
   "best_horizon": 7,
-  "best_horizon_rmse": 0.08766986435610241
+  "best_horizon_rmse": 0.09145543269979765
 }

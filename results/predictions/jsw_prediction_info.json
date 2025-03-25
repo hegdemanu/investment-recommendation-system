@@ -5,8 +5,25 @@
   "start_date": "2025-01-01",
   "end_date": "2025-01-31",
   "start_price": 905.45,
-  "end_price": 903.6717714995145,
-  "expected_return_percent": -0.19639168374681049,
+  "end_price": 915.5387054741382,
+  "expected_return_percent": 1.114220053469328,
   "prediction_data": "./results/predictions/jsw_predictions.csv",
-  "prediction_plot": "./results/predictions/jsw_future_prediction.png"
+  "prediction_plot": "./results/predictions/jsw_future_prediction.png",
+  "model_weights": {
+    "short": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "medium": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "long": {
+      "lstm": 0.2,
+      "arima_garch": 0.4,
+      "prophet": 0.4
+    }
+  }
 }

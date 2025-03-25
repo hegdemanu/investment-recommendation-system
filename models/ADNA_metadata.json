@@ -1,6 +1,6 @@
 {
   "ticker": "ADNA",
-  "training_date": "2025-03-25 06:49:34",
+  "training_date": "2025-03-25 07:37:55",
   "features": [
     "Price",
     "Open",
@@ -10,9 +10,9 @@
     "Change %"
   ],
   "sequence_length": 60,
-  "epochs": 20,
-  "final_train_loss": 0.01614939421415329,
-  "final_val_loss": 0.12930014729499817,
+  "epochs": 12,
+  "final_train_loss": 0.019667254760861397,
+  "final_val_loss": 0.10789139568805695,
   "training_samples": 128,
   "validation_samples": 32,
   "prediction_horizons": [
@@ -24,5 +24,5 @@
     30
   ],
   "best_horizon": 1,
-  "best_horizon_rmse": 0.07433941108287007
+  "best_horizon_rmse": 0.07345769250646267
 }

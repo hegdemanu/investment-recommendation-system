@@ -1,10 +1,76 @@
 # Investment Recommendation System
 
-A comprehensive stock price prediction and investment recommendation system using LSTM (Long Short-Term Memory) neural networks and risk-based portfolio analysis.
+A comprehensive system for analyzing stock and mutual fund performance, training prediction models, and generating investment recommendations.
+
+## How to Run the Application
+
+### Quick Start (Choose one option)
+
+#### Option 1: Python Script (Works on All Platforms)
+Simply double-click on `run_app.py` or run from terminal:
+```bash
+python run_app.py
+```
+
+#### Option 2: Windows Users
+Double-click on `run_app.bat` to run the application.
+
+#### Option 3: macOS/Linux Users
+1. Make sure the script is executable:
+   ```bash
+   chmod +x run_app.sh
+   ```
+2. Double-click on `run_app.sh` or run from terminal:
+   ```bash
+   ./run_app.sh
+   ```
+
+## System Components
+
+The Investment Recommendation System includes the following components:
+
+1. **Data Collection**: Historical stock and mutual fund data acquisition
+2. **Model Training**: LSTM-based prediction models for price forecasting
+3. **Performance Analysis**: Evaluation of model accuracy and training efficiency
+4. **Report Generation**: Comprehensive HTML reports with visualizations
+5. **Investment Recommendations**: Data-driven suggestions for optimal investments
+
+## System Requirements
+
+- Python 3.6 or higher
+- Required Python packages:
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - tensorflow (for LSTM models)
+
+## Visualizations
+
+The system generates the following visualizations:
+- Training performance metrics
+- Prediction accuracy comparison
+- Training size vs. accuracy relationship
+- Stock and mutual fund performance trends
+
+## Output
+
+After running the application, you'll find:
+- Trained models in the `models/` directory
+- Training summaries in `results/training/`
+- HTML reports in `results/reports/`
+- Log files in `logs/`
+
+The main output is an interactive HTML report that opens automatically after the process completes.
+
+---
+
+© 2023 Investment Recommendation System
 
 ## Features
 
 - **LSTM Model Training**: Trains deep learning models to predict future stock prices using historical data
+- **Hybrid Model Weighting**: Uses 100% LSTM for first 15 days of stock predictions, then transitions to a weighted ensemble
 - **Sliding Window Approach**: Uses a 6-month sliding window with 1-day steps for optimal prediction horizons
 - **Multiple Time Frame Analysis**: Provides short-term, medium-term, and long-term predictions
 - **Backtracking Analysis**: Evaluates model performance on historical data
@@ -121,6 +187,21 @@ The system uses LSTM (Long Short-Term Memory) neural networks to predict stock p
 - **Prediction Horizons**: 1, 3, 5, 7, 14, 21, and 30 days
 - **Training Data**: Minimum 6 months of historical data
 - **Validation**: Train-test split (80/20) with sliding window evaluation
+
+### Model Weighting
+
+The system uses a sophisticated model weighting strategy:
+
+- **Stocks**:
+  - First 15 days: 100% LSTM model predictions
+  - After 15 days: Weighted ensemble (20% LSTM, 40% ARIMA-GARCH, 40% Prophet)
+  
+- **Mutual Funds**:
+  - Short-term (1-5 days): 50% LSTM, 30% ARIMA-GARCH, 20% Prophet
+  - Medium-term (7-21 days): 40% LSTM, 30% ARIMA-GARCH, 30% Prophet
+  - Long-term (30+ days): 20% LSTM, 40% ARIMA-GARCH, 40% Prophet
+
+This hybrid approach leverages the strengths of each model for different time horizons, with LSTM proving more effective for short-term predictions and statistical models for longer-term forecasts.
 
 ## Risk Profiles
 

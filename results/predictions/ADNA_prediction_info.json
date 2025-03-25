@@ -5,8 +5,25 @@
   "start_date": "2025-01-01",
   "end_date": "2025-01-31",
   "start_price": 1046.4,
-  "end_price": 1347.7090781211855,
-  "expected_return_percent": 28.794827802101054,
+  "end_price": 1397.3645775794985,
+  "expected_return_percent": 33.540192811496404,
   "prediction_data": "./results/predictions/ADNA_predictions.csv",
-  "prediction_plot": "./results/predictions/ADNA_future_prediction.png"
+  "prediction_plot": "./results/predictions/ADNA_future_prediction.png",
+  "model_weights": {
+    "short": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "medium": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "long": {
+      "lstm": 0.2,
+      "arima_garch": 0.4,
+      "prophet": 0.4
+    }
+  }
 }

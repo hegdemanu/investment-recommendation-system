@@ -1,6 +1,6 @@
 {
   "ticker": "icici",
-  "training_date": "2025-03-25 06:50:46",
+  "training_date": "2025-03-25 07:39:03",
   "features": [
     "Price",
     "Open",
@@ -10,9 +10,9 @@
     "Change %"
   ],
   "sequence_length": 60,
-  "epochs": 17,
-  "final_train_loss": 0.017463980242609978,
-  "final_val_loss": 0.011583564803004265,
+  "epochs": 33,
+  "final_train_loss": 0.011213687248528004,
+  "final_val_loss": 0.011150803416967392,
   "training_samples": 128,
   "validation_samples": 32,
   "prediction_horizons": [
@@ -23,6 +23,6 @@
     21,
     30
   ],
-  "best_horizon": 14,
-  "best_horizon_rmse": 0.06661494178124093
+  "best_horizon": 1,
+  "best_horizon_rmse": 0.06602118159880264
 }

@@ -1,12 +1,29 @@
 {
   "ticker": "bajaj",
-  "best_horizon_days": 3,
+  "best_horizon_days": 1,
   "days_predicted": 30,
   "start_date": "2025-01-01",
   "end_date": "2025-01-31",
   "start_price": 6935.3,
-  "end_price": 6941.057305942476,
-  "expected_return_percent": 0.08301451909038526,
+  "end_price": 7048.831125456094,
+  "expected_return_percent": 1.6370038131889642,
   "prediction_data": "./results/predictions/bajaj_predictions.csv",
-  "prediction_plot": "./results/predictions/bajaj_future_prediction.png"
+  "prediction_plot": "./results/predictions/bajaj_future_prediction.png",
+  "model_weights": {
+    "short": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "medium": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "long": {
+      "lstm": 0.2,
+      "arima_garch": 0.4,
+      "prophet": 0.4
+    }
+  }
 }

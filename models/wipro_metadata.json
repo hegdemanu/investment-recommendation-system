@@ -1,6 +1,6 @@
 {
   "ticker": "wipro",
-  "training_date": "2025-03-25 06:49:47",
+  "training_date": "2025-03-25 07:38:01",
   "features": [
     "Price",
     "Open",
@@ -10,9 +10,9 @@
     "Change %"
   ],
   "sequence_length": 60,
-  "epochs": 44,
-  "final_train_loss": 0.007544765714555979,
-  "final_val_loss": 0.010630824603140354,
+  "epochs": 11,
+  "final_train_loss": 0.02161187119781971,
+  "final_val_loss": 0.05018218606710434,
   "training_samples": 128,
   "validation_samples": 32,
   "prediction_horizons": [
@@ -23,6 +23,6 @@
     21,
     30
   ],
-  "best_horizon": 14,
-  "best_horizon_rmse": 0.04812749852353785
+  "best_horizon": 1,
+  "best_horizon_rmse": 0.07664694643552845
 }

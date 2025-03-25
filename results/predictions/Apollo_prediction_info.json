@@ -1,12 +1,29 @@
 {
   "ticker": "Apollo",
-  "best_horizon_days": 7,
+  "best_horizon_days": 14,
   "days_predicted": 30,
   "start_date": "2025-01-01",
   "end_date": "2025-01-31",
   "start_price": 7369.65,
-  "end_price": 7341.34521752894,
-  "expected_return_percent": -0.3840722757669557,
+  "end_price": 7265.382992175222,
+  "expected_return_percent": -1.4148162779070605,
   "prediction_data": "./results/predictions/Apollo_predictions.csv",
-  "prediction_plot": "./results/predictions/Apollo_future_prediction.png"
+  "prediction_plot": "./results/predictions/Apollo_future_prediction.png",
+  "model_weights": {
+    "short": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "medium": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "long": {
+      "lstm": 0.2,
+      "arima_garch": 0.4,
+      "prophet": 0.4
+    }
+  }
 }
