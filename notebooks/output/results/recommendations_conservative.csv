@@ -1,0 +1,4 @@
+ticker,current_price,recommendation,strength,allocation,expected_return,risk_category,notes
+MSFT,54.950865451761565,Buy,4,0.25,11.042871898113082,Medium,Expected return of 11.0% over prediction period. Risk profile: Medium (score: 4.7/10). Price target: $61.02 by 2025-04-24. Recommended allocation: 25.0% of portfolio.
+AAPL,140.1790878787785,Weak Hold,2,0.25,-3.986190500018616,Medium,Expected return of -4.0% over prediction period. Risk profile: Medium (score: 3.7/10). Price target: $134.59 by 2025-04-24. Recommended allocation: 25.0% of portfolio.
+DUMMY,125.5517761608539,Weak Hold,2,0.5,0.9262566857554777,Medium,Expected return of 0.9% over prediction period. Risk profile: Medium (score: 5.6/10). Price target: $126.71 by 2025-04-24. Recommended allocation: 50.0% of portfolio.

@@ -370,46 +370,163 @@ def generate_training_report(stock_results, mf_results):
         }
     }
     
-    # Save report as JSON
-    report_path = os.path.join(RESULTS_DIR, "training", "training_summary.json")
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
+    # Ensure directory exists
+    report_dir = os.path.join(RESULTS_DIR, "training")
+    os.makedirs(report_dir, exist_ok=True)
     
-    logger.info(f"Training report saved to {report_path}")
+    # Save report as JSON
+    try:
+        report_path = os.path.join(report_dir, "training_summary.json")
+        with open(report_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Training report saved to {report_path}")
+    except Exception as e:
+        logger.error(f"Error saving training report: {str(e)}")
     
     # Generate visual report
-    plt.figure(figsize=(12, 8))
-    
-    # Plot training success rates
-    labels = ['Stocks', 'Mutual Funds']
-    success_rates = [
-        stock_successes / len(stock_results) * 100 if stock_results else 0,
-        mf_successes / len(mf_results) * 100 if mf_results else 0
-    ]
-    
-    plt.bar(labels, success_rates, color=['blue', 'green'])
-    plt.title('Model Training Success Rate')
-    plt.ylabel('Success Rate (%)')
-    plt.ylim(0, 100)
-    
-    # Add text labels on bars
-    for i, rate in enumerate(success_rates):
-        plt.text(i, rate + 2, f"{rate:.1f}%", ha='center')
+    try:
+        plt.figure(figsize=(12, 8))
         
-    # Add counts below bars
-    for i, counts in enumerate([
-        f"{stock_successes}/{len(stock_results)}",
-        f"{mf_successes}/{len(mf_results)}"
-    ]):
-        plt.text(i, -5, counts, ha='center')
+        # Plot training success rates
+        labels = ['Stocks', 'Mutual Funds']
+        success_rates = [
+            stock_successes / max(len(stock_results), 1) * 100,  # Avoid division by zero
+            mf_successes / max(len(mf_results), 1) * 100        # Avoid division by zero
+        ]
+        
+        plt.bar(labels, success_rates, color=['blue', 'green'])
+        plt.title('Model Training Success Rate')
+        plt.ylabel('Success Rate (%)')
+        plt.ylim(0, 100)
+        
+        # Add text labels on bars
+        for i, rate in enumerate(success_rates):
+            plt.text(i, rate + 2, f"{rate:.1f}%", ha='center')
+            
+        # Add counts below bars
+        for i, counts in enumerate([
+            f"{stock_successes}/{len(stock_results)}",
+            f"{mf_successes}/{len(mf_results)}"
+        ]):
+            plt.text(i, -5, counts, ha='center')
+        
+        # Save chart
+        chart_path = os.path.join(report_dir, "training_success_rate.png")
+        plt.tight_layout()
+        plt.savefig(chart_path)
+        plt.close()
+        
+        logger.info(f"Training success chart saved to {chart_path}")
+    except Exception as e:
+        logger.error(f"Error generating training chart: {str(e)}")
     
-    # Save chart
-    chart_path = os.path.join(RESULTS_DIR, "training", "training_success_rate.png")
-    plt.tight_layout()
-    plt.savefig(chart_path)
-    plt.close()
-    
-    logger.info(f"Training success chart saved to {chart_path}")
+    # Generate HTML report for easier viewing
+    try:
+        html_report = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Model Training Report</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 20px; }}
+                h1, h2 {{ color: #2c3e50; }}
+                .summary {{ background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }}
+                .success {{ color: green; }}
+                .failure {{ color: red; }}
+                table {{ border-collapse: collapse; width: 100%; margin-top: 20px; }}
+                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+                th {{ background-color: #f2f2f2; }}
+                tr:nth-child(even) {{ background-color: #f9f9f9; }}
+                img {{ max-width: 100%; height: auto; margin-top: 20px; }}
+            </style>
+        </head>
+        <body>
+            <h1>Model Training Report</h1>
+            <p>Generated on: {now}</p>
+            
+            <div class="summary">
+                <h2>Summary</h2>
+                <p>Total models trained: <b>{stock_successes + mf_successes}</b> out of {len(stock_results) + len(mf_results)}</p>
+                <p>Overall success rate: <b>{(stock_successes + mf_successes) / max(len(stock_results) + len(mf_results), 1) * 100:.1f}%</b></p>
+                
+                <h3>Stocks</h3>
+                <p>Successfully trained: <span class="success">{stock_successes}</span> out of {len(stock_results)}</p>
+                <p>Failures: <span class="failure">{stock_failures}</span></p>
+                
+                <h3>Mutual Funds</h3>
+                <p>Successfully trained: <span class="success">{mf_successes}</span> out of {len(mf_results)}</p>
+                <p>Failures: <span class="failure">{mf_failures}</span></p>
+            </div>
+            
+            <h2>Stock Models</h2>
+            <table>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Status</th>
+                    <th>Data Points</th>
+                    <th>Training Time (s)</th>
+                    <th>Model Path</th>
+                </tr>
+        """
+        
+        # Add stock results
+        for ticker, result in stock_results.items():
+            status_class = "success" if result.get('status') == 'SUCCESS' else "failure"
+            html_report += f"""
+                <tr>
+                    <td>{ticker}</td>
+                    <td class="{status_class}">{result.get('status', 'UNKNOWN')}</td>
+                    <td>{result.get('data_points', 'N/A')}</td>
+                    <td>{result.get('training_time', 'N/A'):.2f if isinstance(result.get('training_time'), (int, float)) else 'N/A'}</td>
+                    <td>{result.get('model_path', 'N/A')}</td>
+                </tr>
+            """
+        
+        html_report += """
+            </table>
+            
+            <h2>Mutual Fund Models</h2>
+            <table>
+                <tr>
+                    <th>Fund Name</th>
+                    <th>Status</th>
+                    <th>Data Points</th>
+                    <th>Training Time (s)</th>
+                    <th>Model Path</th>
+                </tr>
+        """
+        
+        # Add mutual fund results
+        for fund_name, result in mf_results.items():
+            status_class = "success" if result.get('status') == 'SUCCESS' else "failure"
+            html_report += f"""
+                <tr>
+                    <td>{fund_name}</td>
+                    <td class="{status_class}">{result.get('status', 'UNKNOWN')}</td>
+                    <td>{result.get('data_points', 'N/A')}</td>
+                    <td>{result.get('training_time', 'N/A'):.2f if isinstance(result.get('training_time'), (int, float)) else 'N/A'}</td>
+                    <td>{result.get('model_path', 'N/A')}</td>
+                </tr>
+            """
+        
+        html_report += f"""
+            </table>
+            
+            <h2>Success Rate</h2>
+            <img src="training_success_rate.png" alt="Training Success Rate Chart">
+            
+        </body>
+        </html>
+        """
+        
+        # Save HTML report
+        html_path = os.path.join(report_dir, "training_report.html")
+        with open(html_path, 'w') as f:
+            f.write(html_report)
+        
+        logger.info(f"HTML training report saved to {html_path}")
+    except Exception as e:
+        logger.error(f"Error generating HTML report: {str(e)}")
     
     return report
 
