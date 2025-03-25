@@ -1,0 +1,29 @@
+{
+  "ticker": "titan",
+  "best_horizon_days": 1,
+  "days_predicted": 30,
+  "start_date": "2025-01-01",
+  "end_date": "2025-01-31",
+  "start_price": 3253.85,
+  "end_price": 3356.8776358425616,
+  "expected_return_percent": 3.1663302193574383,
+  "prediction_data": "./results/predictions/titan_predictions.csv",
+  "prediction_plot": "./results/predictions/titan_future_prediction.png",
+  "model_weights": {
+    "short": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "medium": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "long": {
+      "lstm": 0.2,
+      "arima_garch": 0.4,
+      "prophet": 0.4
+    }
+  }
+}

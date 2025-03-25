@@ -1,0 +1,23 @@
+DASHBOARD SCREENSHOT PLACEHOLDER
+
+To add your actual dashboard screenshot:
+
+1. Generate the dashboard by running:
+   python run_investment_system.py dashboard
+
+2. Open the generated HTML file in your browser:
+   results/dashboard/investment_dashboard.html
+
+3. Take a screenshot of the dashboard interface
+
+4. Save the screenshot as 'dashboard_preview.png' in this directory 
+   (docs/images/dashboard_preview.png)
+
+5. The screenshot will then appear in the README.md dashboard preview section
+
+For best results:
+- Capture the full dashboard interface
+- Ensure text is readable
+- Consider highlighting key features
+- Use PNG format for best quality
+- Recommended width: 1200px 

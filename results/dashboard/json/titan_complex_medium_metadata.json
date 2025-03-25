@@ -1,0 +1,25 @@
+{
+  "ticker": "titan",
+  "architecture": "complex",
+  "timeframe": "medium",
+  "sequence_length": 60,
+  "prediction_horizons": [
+    7,
+    14,
+    21
+  ],
+  "training_date": "2025-03-25 16:37:16",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 30,
+  "final_train_loss": 0.3667309582233429,
+  "final_val_loss": 0.10413515567779541,
+  "training_samples": 135,
+  "validation_samples": 34
+}

@@ -1,0 +1,25 @@
+{
+  "ticker": "Apollo",
+  "architecture": "simple",
+  "timeframe": "long",
+  "sequence_length": 90,
+  "prediction_horizons": [
+    30,
+    60,
+    90
+  ],
+  "training_date": "2025-03-25 16:42:28",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 29,
+  "final_train_loss": 0.016108768060803413,
+  "final_val_loss": 0.010030614212155342,
+  "training_samples": 56,
+  "validation_samples": 14
+}

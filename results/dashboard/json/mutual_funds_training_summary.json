@@ -1,0 +1,82 @@
+{
+  "timestamp": "2025-03-25 07:14:00",
+  "total": 6,
+  "processed": 6,
+  "success": 4,
+  "failed": 1,
+  "details": {
+    "icici": {
+      "fund_name": "icici",
+      "data_points": 466,
+      "training_time": 7.76862907409668,
+      "loss": "N/A",
+      "features_used": [
+        "Price",
+        "Open",
+        "High",
+        "Low",
+        "Vol.",
+        "Change %"
+      ],
+      "model_saved": true,
+      "model_path": "./models/mutual_funds/icici_lstm.h5",
+      "status": "SUCCESS"
+    },
+    "Tata": {
+      "fund_name": "Tata",
+      "status": "FAILED",
+      "reason": "Model training failed"
+    },
+    "sbi": {
+      "fund_name": "sbi",
+      "data_points": 929,
+      "training_time": 7.824773073196411,
+      "loss": "N/A",
+      "features_used": [
+        "Price",
+        "Open",
+        "High",
+        "Low",
+        "Vol.",
+        "Change %"
+      ],
+      "model_saved": true,
+      "model_path": "./models/mutual_funds/sbi_lstm.h5",
+      "status": "SUCCESS"
+    },
+    "Birla": {
+      "fund_name": "Birla",
+      "data_points": 1371,
+      "training_time": 18.24239993095398,
+      "loss": "N/A",
+      "features_used": [
+        "Price",
+        "Open",
+        "High",
+        "Low",
+        "Vol.",
+        "Change %"
+      ],
+      "model_saved": true,
+      "model_path": "./models/mutual_funds/Birla_lstm.h5",
+      "status": "SUCCESS"
+    },
+    "axis": {
+      "fund_name": "axis",
+      "data_points": 300,
+      "training_time": 6.153973817825317,
+      "loss": "N/A",
+      "features_used": [
+        "Price",
+        "Open",
+        "High",
+        "Low",
+        "Vol.",
+        "Change %"
+      ],
+      "model_saved": true,
+      "model_path": "./models/mutual_funds/axis_lstm.h5",
+      "status": "SUCCESS"
+    }
+  }
+}

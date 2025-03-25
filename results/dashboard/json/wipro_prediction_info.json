@@ -1,0 +1,29 @@
+{
+  "ticker": "wipro",
+  "best_horizon_days": 14,
+  "days_predicted": 30,
+  "start_date": "2025-01-01",
+  "end_date": "2025-01-31",
+  "start_price": 300.3,
+  "end_price": 278.1683467286825,
+  "expected_return_percent": -7.369847909196647,
+  "prediction_data": "./results/predictions/wipro_predictions.csv",
+  "prediction_plot": "./results/predictions/wipro_future_prediction.png",
+  "model_weights": {
+    "short": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "medium": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "long": {
+      "lstm": 0.2,
+      "arima_garch": 0.4,
+      "prophet": 0.4
+    }
+  }
+}

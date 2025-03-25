@@ -1,0 +1,25 @@
+{
+  "ticker": "bajaj",
+  "architecture": "simple",
+  "timeframe": "short",
+  "sequence_length": 30,
+  "prediction_horizons": [
+    1,
+    3,
+    5
+  ],
+  "training_date": "2025-03-25 16:42:43",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 23,
+  "final_train_loss": 0.02176625281572342,
+  "final_val_loss": 0.02123330533504486,
+  "training_samples": 172,
+  "validation_samples": 43
+}

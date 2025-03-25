@@ -1,0 +1,25 @@
+{
+  "ticker": "asian",
+  "architecture": "medium",
+  "timeframe": "medium",
+  "sequence_length": 60,
+  "prediction_horizons": [
+    7,
+    14,
+    21
+  ],
+  "training_date": "2025-03-25 16:43:46",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 14,
+  "final_train_loss": 0.0207594633102417,
+  "final_val_loss": 0.15681636333465576,
+  "training_samples": 135,
+  "validation_samples": 34
+}

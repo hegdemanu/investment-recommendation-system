@@ -1,0 +1,224 @@
+{
+  "timestamp": "2025-03-25 07:11:22",
+  "stocks": {
+    "total": 12,
+    "success": 12,
+    "failed": 0,
+    "details": {
+      "jsw": {
+        "ticker": "jsw",
+        "data_points": 250,
+        "training_time": 6.3088109493255615,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/jsw_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "titan": {
+        "ticker": "titan",
+        "data_points": 250,
+        "training_time": 5.172666072845459,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/titan_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "ADNA": {
+        "ticker": "ADNA",
+        "data_points": 250,
+        "training_time": 3.6410582065582275,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/ADNA_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "wipro": {
+        "ticker": "wipro",
+        "data_points": 250,
+        "training_time": 10.250483989715576,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/wipro_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "ultratech": {
+        "ticker": "ultratech",
+        "data_points": 250,
+        "training_time": 3.725250005722046,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/ultratech_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "infosys": {
+        "ticker": "infosys",
+        "data_points": 250,
+        "training_time": 3.5450427532196045,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/infosys_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "nestle": {
+        "ticker": "nestle",
+        "data_points": 250,
+        "training_time": 3.5797927379608154,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/nestle_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "Apollo": {
+        "ticker": "Apollo",
+        "data_points": 250,
+        "training_time": 4.1703736782073975,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/Apollo_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "bajaj": {
+        "ticker": "bajaj",
+        "data_points": 250,
+        "training_time": 3.9800398349761963,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/bajaj_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "asian": {
+        "ticker": "asian",
+        "data_points": 250,
+        "training_time": 13.471860885620117,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/asian_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "icici": {
+        "ticker": "icici",
+        "data_points": 250,
+        "training_time": 6.067348003387451,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/icici_lstm.h5",
+        "status": "SUCCESS"
+      },
+      "ongc": {
+        "ticker": "ongc",
+        "data_points": 250,
+        "training_time": 3.59801983833313,
+        "loss": "N/A",
+        "features_used": [
+          "Price",
+          "Open",
+          "High",
+          "Low",
+          "Vol.",
+          "Change %"
+        ],
+        "model_saved": true,
+        "model_path": "./models/stocks/ongc_lstm.h5",
+        "status": "SUCCESS"
+      }
+    }
+  },
+  "mutual_funds": {
+    "total": 0,
+    "success": 0,
+    "failed": 0,
+    "details": {}
+  },
+  "overall": {
+    "total_trained": 12,
+    "total_failed": 0
+  }
+}

@@ -209,7 +209,13 @@ def create_sample_html_report():
     </div>
     
     <h2>Methodology</h2>
-    <p>This report is based on LSTM model predictions trained on historical stock data. The model takes into account various technical indicators and market conditions to generate forecasts.</p>
+    <p>This report is based on predictions from multiple models trained on historical stock data:</p>
+    <ul>
+        <li><strong>LSTM model</strong> - For short-term predictions (1-7 days)</li>  
+        <li><strong>GRU model</strong> - For medium-term predictions (7-14 days)</li>
+        <li><strong>Ensemble model</strong> - For long-term predictions (14-30 days)</li>
+    </ul>
+    <p>The models take into account various technical indicators and market conditions to generate forecasts.</p>
     
     <p><i>This is a sample report for demonstration purposes only and does not constitute financial advice.</i></p>
 </body>

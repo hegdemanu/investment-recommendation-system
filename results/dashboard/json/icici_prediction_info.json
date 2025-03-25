@@ -1,0 +1,29 @@
+{
+  "ticker": "icici",
+  "best_horizon_days": 1,
+  "days_predicted": 30,
+  "start_date": "2025-01-01",
+  "end_date": "2025-01-31",
+  "start_price": 1283.65,
+  "end_price": 1281.3951732516289,
+  "expected_return_percent": -0.17565744154335317,
+  "prediction_data": "./results/predictions/icici_predictions.csv",
+  "prediction_plot": "./results/predictions/icici_future_prediction.png",
+  "model_weights": {
+    "short": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "medium": {
+      "lstm": 1.0,
+      "arima_garch": 0.0,
+      "prophet": 0.0
+    },
+    "long": {
+      "lstm": 0.2,
+      "arima_garch": 0.4,
+      "prophet": 0.4
+    }
+  }
+}

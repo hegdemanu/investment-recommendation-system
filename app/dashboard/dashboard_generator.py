@@ -10,11 +10,12 @@ import glob
 import base64
 import re
 import webbrowser
+import shutil
 from datetime import datetime
 from pathlib import Path
 
 from config.settings import (
-    DASHBOARD_FILE, DASHBOARD_DIR, TRAINING_DIR, VALIDATION_DIR, 
+    DASHBOARD_FILE, DASHBOARD_DIR, DASHBOARD_JSON_DIR, TRAINING_DIR, VALIDATION_DIR, 
     REPORTS_DIR, MODELS_DIR, RESULTS_DIR, DATA_DIR
 )
 from app.utils.file_utils import file_to_base64, load_json_file
@@ -26,6 +27,7 @@ from app.dashboard.dashboard_template import get_dashboard_template
 def ensure_directories():
     """Ensure all necessary directories exist."""
     os.makedirs(DASHBOARD_DIR, exist_ok=True)
+    os.makedirs(DASHBOARD_JSON_DIR, exist_ok=True)
     os.makedirs(TRAINING_DIR, exist_ok=True)
     os.makedirs(VALIDATION_DIR, exist_ok=True)
     os.makedirs(REPORTS_DIR, exist_ok=True)
@@ -35,6 +37,7 @@ def ensure_directories():
     os.makedirs(os.path.join(DATA_DIR, "uploads"), exist_ok=True)
     os.makedirs(os.path.join(DATA_DIR, "processed"), exist_ok=True)
     os.makedirs(os.path.join(DATA_DIR, "raw"), exist_ok=True)
+    os.makedirs(os.path.join(DATA_DIR, "sector_info"), exist_ok=True)
 
 def get_image_files():
     """Get all image files from the results and models directories."""
@@ -110,6 +113,152 @@ def get_processed_data():
     
     return processed_data
 
+def get_sector_data():
+    """Get sector information for the pie chart."""
+    sector_data = {}
+    stock_sectors_file = os.path.join(DATA_DIR, "sector_info", "stock_sectors.json")
+    mf_sectors_file = os.path.join(DATA_DIR, "sector_info", "mutual_fund_sectors.json")
+    
+    # Initialize with default sector data if files don't exist
+    if not os.path.exists(stock_sectors_file) or not os.path.exists(mf_sectors_file):
+        # Default sectors with colors - using more professional names
+        sector_data = {
+            "Information Technology": {"value": 25, "color": "#3498db"},
+            "Financial Services": {"value": 15, "color": "#f39c12"},
+            "Energy & Utilities": {"value": 10, "color": "#e74c3c"},
+            "Healthcare": {"value": 10, "color": "#2ecc71"},
+            "Consumer Discretionary": {"value": 8, "color": "#9b59b6"},
+            "Industrials": {"value": 12, "color": "#1abc9c"},
+            "Consumer Staples": {"value": 10, "color": "#34495e"},
+            "Diversified": {"value": 10, "color": "#7f8c8d"}
+        }
+        return sector_data
+    
+    # Load the sector data files
+    try:
+        stock_sectors = load_json_file(stock_sectors_file)
+        mf_sectors = load_json_file(mf_sectors_file)
+        
+        # Professional sector name mapping
+        sector_name_mapping = {
+            "Technology": "Information Technology",
+            "Banking": "Financial Services",
+            "Energy": "Energy & Utilities",
+            "Pharmaceuticals": "Healthcare",
+            "Retail": "Consumer Discretionary",
+            "Manufacturing": "Industrials",
+            "FMCG": "Consumer Staples",
+            "Automotive": "Industrials",
+            "Paints": "Materials",
+            "Equity": "Equity Funds",
+            "Debt": "Fixed Income",
+            "Hybrid": "Balanced Funds"
+        }
+        
+        # Get training summary to understand which stocks/mfs are used
+        training_summary_file = os.path.join(RESULTS_DIR, "training", "training_summary.json")
+        if os.path.exists(training_summary_file):
+            training_summary = load_json_file(training_summary_file)
+            
+            # Count stocks by sector
+            sector_counts = {}
+            
+            # Process stocks
+            if training_summary and "stocks" in training_summary:
+                stock_details = training_summary["stocks"].get("details", {})
+                for ticker in stock_details:
+                    # Find which sector this stock belongs to
+                    for sector, stocks in stock_sectors["sectors"].items():
+                        if ticker in stocks:
+                            # Use professional sector name if available
+                            prof_sector = sector_name_mapping.get(sector, sector)
+                            if prof_sector not in sector_counts:
+                                sector_counts[prof_sector] = 0
+                            sector_counts[prof_sector] += 1
+            
+            # Process mutual funds
+            if training_summary and "mutual_funds" in training_summary:
+                mf_details = training_summary["mutual_funds"].get("details", {})
+                for fund in mf_details:
+                    # Find which sector this mutual fund belongs to
+                    for sector, funds in mf_sectors["sectors"].items():
+                        if fund in funds:
+                            # Use professional sector name if available
+                            prof_sector = sector_name_mapping.get(sector, sector)
+                            if prof_sector not in sector_counts:
+                                sector_counts[prof_sector] = 0
+                            sector_counts[prof_sector] += 1
+            
+            # If no data is found, use default values with professional names
+            if not sector_counts:
+                sector_counts = {
+                    "Information Technology": 2,
+                    "Financial Services": 1,
+                    "Energy & Utilities": 1,
+                    "Healthcare": 1,
+                    "Consumer Discretionary": 1,
+                    "Industrials": 2,
+                    "Consumer Staples": 1,
+                    "Diversified": 3
+                }
+            
+            # Assign colors to sectors for the pie chart - use a professional color palette
+            colors = [
+                "#0075C9", "#FFB81C", "#DA291C", "#00A551", 
+                "#702F8A", "#00ADEF", "#414042", "#231F20",
+                "#D35213", "#002855", "#553592", "#00C389"
+            ]
+            
+            # Convert counts to percentages and assign colors
+            total = sum(sector_counts.values())
+            for i, (sector, count) in enumerate(sector_counts.items()):
+                percentage = round((count / total) * 100)
+                sector_data[sector] = {
+                    "value": percentage,
+                    "color": colors[i % len(colors)]
+                }
+            
+            return sector_data
+        else:
+            # Default sectors with colors with professional names
+            sector_data = {
+                "Information Technology": {"value": 25, "color": "#0075C9"},
+                "Financial Services": {"value": 15, "color": "#FFB81C"},
+                "Energy & Utilities": {"value": 10, "color": "#DA291C"},
+                "Healthcare": {"value": 10, "color": "#00A551"},
+                "Consumer Discretionary": {"value": 8, "color": "#702F8A"},
+                "Industrials": {"value": 12, "color": "#00ADEF"},
+                "Consumer Staples": {"value": 10, "color": "#414042"},
+                "Diversified": {"value": 10, "color": "#231F20"}
+            }
+            return sector_data
+            
+    except Exception as e:
+        print(f"Error loading sector data: {str(e)}")
+        # Default sectors with professional names and colors
+        sector_data = {
+            "Information Technology": {"value": 25, "color": "#0075C9"},
+            "Financial Services": {"value": 15, "color": "#FFB81C"},
+            "Energy & Utilities": {"value": 10, "color": "#DA291C"},
+            "Healthcare": {"value": 10, "color": "#00A551"},
+            "Consumer Discretionary": {"value": 8, "color": "#702F8A"},
+            "Industrials": {"value": 12, "color": "#00ADEF"},
+            "Consumer Staples": {"value": 10, "color": "#414042"},
+            "Diversified": {"value": 10, "color": "#231F20"}
+        }
+        return sector_data
+
+def generate_sector_pie_data():
+    """Generate the JavaScript data structure for the sector pie chart."""
+    sector_data = get_sector_data()
+    
+    # Generate the JavaScript array for the pie chart
+    js_data = []
+    for sector, data in sector_data.items():
+        js_data.append(f'{{ label: "{sector}", value: {data["value"]}, color: "{data["color"]}" }}')
+    
+    return ",\n                ".join(js_data)
+
 def generate_chart_items(image_files):
     """Generate HTML for chart items."""
     if not image_files:
@@ -172,7 +321,24 @@ def generate_json_items(json_files):
         return """<div class="no-results">No JSON report files found. Generate reports first.</div>"""
     
     items_html = ""
+    dashboard_json_files = []
+    
+    # Copy JSON files to dashboard/json directory for easier access
     for file in json_files:
+        file_name = os.path.basename(file)
+        dashboard_json_path = os.path.join(DASHBOARD_JSON_DIR, file_name)
+        
+        # Copy file to dashboard/json directory
+        try:
+            shutil.copy2(file, dashboard_json_path)
+            dashboard_json_files.append(dashboard_json_path)
+        except Exception as e:
+            print(f"Warning: Could not copy {file} to dashboard directory: {str(e)}")
+    
+    # Use both original and dashboard JSON files
+    all_json_files = list(set(json_files + dashboard_json_files))
+    
+    for file in all_json_files:
         file_name = os.path.basename(file)
         relative_path = os.path.relpath(file)
         file_directory = os.path.dirname(relative_path)
@@ -192,6 +358,9 @@ def generate_json_items(json_files):
             category = "Report"
         elif "models" in file_directory.lower():
             category = "Model"
+        elif "dashboard/json" in file_directory.lower():
+            # Skip duplicate dashboard files in the UI
+            continue
         
         if category:
             title = f"{category}: {title}"
@@ -376,6 +545,7 @@ def generate_dashboard():
     json_items = generate_json_items(json_files)
     raw_data_items = generate_raw_data_items(data_files)
     processed_data_warning, processed_data_items = generate_processed_data_items(processed_data)
+    sector_pie_data = generate_sector_pie_data()
     
     # Get template and insert dynamic content
     template = get_dashboard_template()
@@ -384,7 +554,9 @@ def generate_dashboard():
         json_items=json_items,
         raw_data_items=raw_data_items,
         processed_data_warning=processed_data_warning,
-        processed_data_items=processed_data_items
+        processed_data_items=processed_data_items,
+        date=datetime.now().strftime("%Y-%m-%d"),
+        sector_pie_data=sector_pie_data
     )
     
     # Write the HTML file
@@ -402,7 +574,7 @@ def debug_tabs(html_content):
     tab_buttons = re.findall(r'onclick="openTab\(\'(.*?)\'\)"', html_content)
     
     # Find all content section IDs
-    content_sections = re.findall(r'id="(charts|json|data|processed)"', html_content)
+    content_sections = re.findall(r'id="(home|charts|json|data|processed|expert)"', html_content)
     
     # Compare to make sure all tabs have matching content divs
     all_tabs_matched = True

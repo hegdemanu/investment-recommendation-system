@@ -1,0 +1,25 @@
+{
+  "ticker": "nestle",
+  "architecture": "complex",
+  "timeframe": "short",
+  "sequence_length": 30,
+  "prediction_horizons": [
+    1,
+    3,
+    5
+  ],
+  "training_date": "2025-03-25 16:41:11",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 14,
+  "final_train_loss": 0.560185968875885,
+  "final_val_loss": 0.07850057631731033,
+  "training_samples": 172,
+  "validation_samples": 43
+}

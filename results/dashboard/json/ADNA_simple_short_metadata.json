@@ -1,0 +1,25 @@
+{
+  "ticker": "ADNA",
+  "architecture": "simple",
+  "timeframe": "short",
+  "sequence_length": 30,
+  "prediction_horizons": [
+    1,
+    3,
+    5
+  ],
+  "training_date": "2025-03-25 16:37:29",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 11,
+  "final_train_loss": 0.016475891694426537,
+  "final_val_loss": 0.05684875324368477,
+  "training_samples": 172,
+  "validation_samples": 43
+}

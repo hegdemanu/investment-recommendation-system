@@ -1,0 +1,7 @@
+{
+  "sectors": {
+    "Equity Funds": ["axis", "Birla"],
+    "Fixed Income": ["sbi", "icici"],
+    "Balanced Funds": ["Tata", "L&T"]
+  }
+} 

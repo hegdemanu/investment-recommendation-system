@@ -1,0 +1,14 @@
+{
+  "sectors": {
+    "Information Technology": ["infosys", "wipro"],
+    "Financial Services": ["icici"],
+    "Energy & Utilities": ["ongc"],
+    "Healthcare": ["Apollo"],
+    "Consumer Discretionary": ["titan"],
+    "Industrials - Automotive": ["bajaj"],
+    "Industrials - Manufacturing": ["jsw", "ultratech"],
+    "Consumer Staples": ["nestle"],
+    "Materials": ["asian"],
+    "Diversified": ["ADNA"]
+  }
+} 

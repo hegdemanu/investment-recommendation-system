@@ -25,6 +25,7 @@ TRAINING_DIR = os.path.join(RESULTS_DIR, "training")
 VALIDATION_DIR = os.path.join(RESULTS_DIR, "validation")
 PREDICTIONS_DIR = os.path.join(RESULTS_DIR, "predictions")
 DASHBOARD_DIR = os.path.join(RESULTS_DIR, "dashboard")
+DASHBOARD_JSON_DIR = os.path.join(DASHBOARD_DIR, "json")
 
 # Dashboard settings
 DASHBOARD_FILE = os.path.join(DASHBOARD_DIR, "investment_dashboard.html")
@@ -51,7 +52,7 @@ def ensure_directories():
     directories = [
         DATA_DIR, MODELS_DIR, RESULTS_DIR, LOGS_DIR,
         STOCKS_DATA_DIR, MUTUAL_FUNDS_DATA_DIR, UPLOADS_DIR, PROCESSED_DATA_DIR, RAW_DATA_DIR,
-        REPORTS_DIR, TRAINING_DIR, VALIDATION_DIR, PREDICTIONS_DIR, DASHBOARD_DIR
+        REPORTS_DIR, TRAINING_DIR, VALIDATION_DIR, PREDICTIONS_DIR, DASHBOARD_DIR, DASHBOARD_JSON_DIR
     ]
     
     for directory in directories:

@@ -1,6 +1,30 @@
 # Changelog
 
-## [1.0.0] - 2023
+## [1.1.0] - 2025
+
+### Added
+- Added detailed diversification information modal to the dashboard
+- Improved information display in the pie chart section with subtitle and info icon
+- Added clickable "more" indicator for expanding legend items in mobile view
+- Implemented cursor sticking fixes for better user interaction
+- Added documentation explaining dashboard features
+- Added dedicated JSON directory in dashboard for better organization
+
+### Changed
+- Streamlined the README with more concise instructions
+- Updated repository structure documentation
+- Archived redundant launcher scripts
+- Improved dashboard CSS and JavaScript for mobile responsiveness
+- Enhanced dashboard generator to copy JSON files to dedicated directory
+- Updated model documentation to clearly describe all three models (LSTM, GRU, Ensemble)
+
+### Fixed
+- Fixed pie chart rendering in mobile view
+- Fixed cursor sticking issues with interactive elements
+- Fixed template variable conflicts in dashboard generation
+- Fixed legend display in mobile/popup mode
+
+## [1.0.0] - 2025
 
 ### Added
 - Restructured the project into a more modular and maintainable architecture
