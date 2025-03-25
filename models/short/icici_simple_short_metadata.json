@@ -1,0 +1,25 @@
+{
+  "ticker": "icici",
+  "architecture": "simple",
+  "timeframe": "short",
+  "sequence_length": 30,
+  "prediction_horizons": [
+    1,
+    3,
+    5
+  ],
+  "training_date": "2025-03-25 16:44:06",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 12,
+  "final_train_loss": 0.012075514532625675,
+  "final_val_loss": 0.00883073266595602,
+  "training_samples": 172,
+  "validation_samples": 43
+}

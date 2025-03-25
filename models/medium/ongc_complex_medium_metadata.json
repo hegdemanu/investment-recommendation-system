@@ -1,0 +1,25 @@
+{
+  "ticker": "ongc",
+  "architecture": "complex",
+  "timeframe": "medium",
+  "sequence_length": 60,
+  "prediction_horizons": [
+    7,
+    14,
+    21
+  ],
+  "training_date": "2025-03-25 16:45:29",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 19,
+  "final_train_loss": 0.4724666476249695,
+  "final_val_loss": 0.028333313763141632,
+  "training_samples": 135,
+  "validation_samples": 34
+}

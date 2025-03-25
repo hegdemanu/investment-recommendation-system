@@ -1,0 +1,25 @@
+{
+  "ticker": "jsw",
+  "architecture": "medium",
+  "timeframe": "short",
+  "sequence_length": 30,
+  "prediction_horizons": [
+    1,
+    3,
+    5
+  ],
+  "training_date": "2025-03-25 16:36:03",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 11,
+  "final_train_loss": 0.01745239831507206,
+  "final_val_loss": 0.018531352281570435,
+  "training_samples": 172,
+  "validation_samples": 43
+}

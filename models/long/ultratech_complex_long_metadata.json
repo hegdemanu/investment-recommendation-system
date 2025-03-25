@@ -1,0 +1,25 @@
+{
+  "ticker": "ultratech",
+  "architecture": "complex",
+  "timeframe": "long",
+  "sequence_length": 90,
+  "prediction_horizons": [
+    30,
+    60,
+    90
+  ],
+  "training_date": "2025-03-25 16:40:03",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 88,
+  "final_train_loss": 0.2372995764017105,
+  "final_val_loss": 0.06964237242937088,
+  "training_samples": 56,
+  "validation_samples": 14
+}

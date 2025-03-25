@@ -1,0 +1,25 @@
+{
+  "ticker": "wipro",
+  "architecture": "medium",
+  "timeframe": "short",
+  "sequence_length": 30,
+  "prediction_horizons": [
+    1,
+    3,
+    5
+  ],
+  "training_date": "2025-03-25 16:38:14",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 11,
+  "final_train_loss": 0.013829203322529793,
+  "final_val_loss": 0.038633279502391815,
+  "training_samples": 172,
+  "validation_samples": 43
+}

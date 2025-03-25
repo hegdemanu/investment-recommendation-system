@@ -1,0 +1,25 @@
+{
+  "ticker": "infosys",
+  "architecture": "complex",
+  "timeframe": "long",
+  "sequence_length": 90,
+  "prediction_horizons": [
+    30,
+    60,
+    90
+  ],
+  "training_date": "2025-03-25 16:41:04",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "epochs": 74,
+  "final_train_loss": 0.23669573664665222,
+  "final_val_loss": 0.03883269429206848,
+  "training_samples": 56,
+  "validation_samples": 14
+}
