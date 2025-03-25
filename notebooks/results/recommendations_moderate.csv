@@ -1,6 +1,0 @@
-ticker,current_price,recommendation,strength,allocation,expected_return,risk_category,notes
-MSFT,99.00544216278284,Hold,3,0.25000000000000006,7.702136512840618,High,Expected return of 7.7% over prediction period. Risk profile: High (score: 8.1/10). Price target: $106.63 by 2025-04-24. Recommended allocation: 25.0% of portfolio.
-AMZN,91.45894735790375,Hold,3,0.25000000000000006,6.449127584827141,High,Expected return of 6.4% over prediction period. Risk profile: High (score: 9.0/10). Price target: $97.36 by 2025-04-24. Recommended allocation: 25.0% of portfolio.
-AAPL,119.63279000849549,Hold,3,0.3260184050964106,2.146375138300338,Medium,Expected return of 2.1% over prediction period. Risk profile: Medium (score: 4.2/10). Price target: $122.20 by 2025-04-24. Recommended allocation: 32.6% of portfolio.
-GOOGL,77.2586162629194,Hold,3,0.10952091504531089,0.9552262605595052,Medium,Expected return of 1.0% over prediction period. Risk profile: Medium (score: 5.6/10). Price target: $78.00 by 2025-04-24. Recommended allocation: 11.0% of portfolio.
-DUMMY,115.04504705239117,Weak Hold,2,0.06446067985827846,-0.05415971636784089,High,Expected return of -0.1% over prediction period. Risk profile: High (score: 8.6/10). Price target: $114.98 by 2025-04-24. Recommended allocation: 6.4% of portfolio.

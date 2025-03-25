@@ -7,6 +7,9 @@ import os
 import numpy as np
 import pandas as pd
 import pickle
+import matplotlib
+# Set the backend to non-interactive 'Agg' to avoid GUI issues
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
@@ -36,6 +39,8 @@ class ModelTrainer:
             Directory to save trained models
         """
         self.models_dir = models_dir
+        self.sequence_length = 60  # Default sequence length (~2 months of trading days)
+        
         if not os.path.exists(models_dir):
             os.makedirs(models_dir)
             logger.info(f"Created models directory: {models_dir}")
@@ -148,9 +153,9 @@ class ModelTrainer:
         else:
             logger.warning(f"Could not save data statistics to {stats_path} - empty stats dataframe")
     
-    def train_lstm_model(self, data, ticker, seq_length=60, epochs=100, batch_size=32, min_data_points=100):
+    def train_lstm_model(self, data, ticker, seq_length=60, epochs=100, batch_size=32, min_data_points=180):
         """
-        Train an LSTM model for a specific ticker.
+        Train an LSTM model for a specific ticker using sliding window over 6 months data.
         
         Parameters:
         -----------
@@ -159,26 +164,26 @@ class ModelTrainer:
         ticker : str
             The ticker symbol to train model for
         seq_length : int, optional
-            Sequence length for LSTM input
+            Sequence length for LSTM input, default 60 (~2 months of trading days)
         epochs : int, optional
             Number of training epochs
         batch_size : int, optional
             Batch size for training
         min_data_points : int, optional
-            Minimum number of data points required for training
+            Minimum number of data points required for training (default 180 ~6 months)
             
         Returns:
         --------
         tuple : (trained model, scaler, features used)
         """
-        logger.info(f"Training LSTM model for {ticker}...")
+        logger.info(f"Training LSTM model for {ticker} with sliding window approach...")
         
         # Validate input data
         if data is None or data.empty:
             logger.error(f"Cannot train model for {ticker}: Empty data")
             return None, None, None
         
-        # Filter data for the specific ticker
+        # Filter data for the specific ticker - use at least 6 months of data (approx 180 days)
         ticker_data = data[data['ticker'] == ticker].sort_values('Date') if 'ticker' in data.columns else data.sort_values('Date')
         
         # Check if enough data for training
@@ -284,24 +289,33 @@ class ModelTrainer:
             logger.error(f"Error scaling features for {ticker}: {str(e)}")
             return None, None, None
         
-        # Create sequences for LSTM
-        X_seq, y_seq = [], []
+        # Define prediction horizons to test (1 to 30 days)
+        prediction_horizons = [1, 3, 7, 14, 21, 30]
+        max_horizon = 30
         
-        for i in range(len(X_scaled) - seq_length):
+        # Create sequences for multi-horizon prediction
+        X_seq, y_multi = [], []
+        
+        for i in range(len(X_scaled) - seq_length - max_horizon):
+            # Input sequence
             X_seq.append(X_scaled[i:i+seq_length])
-            # Predict the next day's price (index 0 corresponds to 'Price')
-            y_seq.append(X_scaled[i+seq_length, 0])
+            
+            # Create targets for multiple horizons
+            targets = []
+            for horizon in prediction_horizons:
+                # Use the Price (first column) at each horizon
+                targets.append(X_scaled[i+seq_length+horizon-1, 0])
+            
+            y_multi.append(targets)
         
         if not X_seq:
-            logger.error(f"Not enough data for {ticker} to create sequences. Need at least {seq_length+1} data points.")
+            logger.error(f"Not enough data for {ticker} to create sequences with horizons. Need at least {seq_length + max_horizon} data points.")
             return None, None, None
         
-        X_seq, y_seq = np.array(X_seq), np.array(y_seq)
+        X_seq = np.array(X_seq)
+        y_multi = np.array(y_multi)
         
-        # Verify shape is as expected
-        if len(X_seq.shape) != 3:
-            logger.error(f"Unexpected X_seq shape for {ticker}: {X_seq.shape}. Expected 3 dimensions.")
-            return None, None, None
+        logger.info(f"Created sequences with shape {X_seq.shape} and targets with shape {y_multi.shape}")
         
         # Split into train and validation sets
         train_size = int(len(X_seq) * 0.8)
@@ -312,7 +326,7 @@ class ModelTrainer:
             train_size = max(int(len(X_seq) * 0.7), len(X_seq) - 20)  # Ensure at least 20 validation samples
         
         X_train, X_val = X_seq[:train_size], X_seq[train_size:]
-        y_train, y_val = y_seq[:train_size], y_seq[train_size:]
+        y_train, y_val = y_multi[:train_size], y_multi[train_size:]
         
         logger.info(f"Training set size: {len(X_train)}, Validation set size: {len(X_val)}")
         
@@ -322,11 +336,11 @@ class ModelTrainer:
             input_shape = (X_train.shape[1], X_train.shape[2])
             
             model = Sequential([
-                LSTM(50, return_sequences=True, input_shape=input_shape),
+                LSTM(64, return_sequences=True, input_shape=input_shape),
                 Dropout(0.2),
-                LSTM(50, return_sequences=False),
+                LSTM(64, return_sequences=False),
                 Dropout(0.2),
-                Dense(1)
+                Dense(len(prediction_horizons))  # Output one prediction for each horizon
             ])
             
             model.compile(optimizer='adam', loss='mean_squared_error')
@@ -360,14 +374,26 @@ class ModelTrainer:
             if np.isnan(history.history['loss'][-1]) or np.isnan(history.history['val_loss'][-1]):
                 logger.error(f"Training failed for {ticker} - NaN loss values")
                 return None, None, None
-                
-            # Evaluate the model
-            val_loss = history.history['val_loss'][-1]
-            logger.info(f"Validation loss for {ticker}: {val_loss:.4f}")
             
-            # If validation loss is exceptionally high, model might be poor
-            if val_loss > 0.2:  # This threshold may need adjustment
-                logger.warning(f"High validation loss for {ticker}: {val_loss:.4f}")
+            # Evaluate each prediction horizon
+            val_predictions = model.predict(X_val)
+            horizon_errors = []
+            
+            for i, horizon in enumerate(prediction_horizons):
+                # Calculate RMSE for this horizon
+                horizon_mse = np.mean((val_predictions[:, i] - y_val[:, i]) ** 2)
+                horizon_rmse = np.sqrt(horizon_mse)
+                horizon_errors.append((horizon, horizon_rmse))
+                logger.info(f"Horizon {horizon} days - RMSE: {horizon_rmse:.4f}")
+            
+            # Find best horizon (lowest RMSE)
+            horizon_errors.sort(key=lambda x: x[1])
+            best_horizon = horizon_errors[0][0]
+            best_horizon_rmse = horizon_errors[0][1]
+            best_horizon_idx = prediction_horizons.index(best_horizon)
+            
+            logger.info(f"Best prediction horizon for {ticker}: {best_horizon} days with RMSE: {best_horizon_rmse:.4f}")
+            
         except Exception as e:
             logger.error(f"Error training LSTM model for {ticker}: {str(e)}")
             return None, None, None
@@ -385,8 +411,24 @@ class ModelTrainer:
             plt.savefig(plot_path)
             plt.close()
             logger.info(f"Training history plot saved to {plot_path}")
+            
+            # Plot prediction horizon errors
+            plt.figure(figsize=(10, 6))
+            horizons, errors = zip(*horizon_errors)
+            plt.bar([str(h) for h in horizons], errors)
+            plt.title(f'RMSE by Prediction Horizon for {ticker}')
+            plt.xlabel('Prediction Horizon (days)')
+            plt.ylabel('RMSE')
+            plt.axvline(x=best_horizon_idx, color='r', linestyle='--', 
+                        label=f'Best Horizon: {best_horizon} days')
+            plt.xticks(rotation=45)
+            plt.legend()
+            horizon_plot_path = os.path.join(self.models_dir, f"{ticker}_horizon_errors.png")
+            plt.savefig(horizon_plot_path)
+            plt.close()
+            logger.info(f"Horizon errors plot saved to {horizon_plot_path}")
         except Exception as e:
-            logger.warning(f"Error creating training history plot for {ticker}: {str(e)}")
+            logger.warning(f"Error creating plots for {ticker}: {str(e)}")
         
         # Save model and related artifacts
         try:
@@ -407,6 +449,17 @@ class ModelTrainer:
                 pickle.dump(available_features, f)
             logger.info(f"Features list saved to {features_path}")
             
+            # Save prediction horizons
+            horizons_path = os.path.join(self.models_dir, f"{ticker}_horizons.pkl")
+            with open(horizons_path, 'wb') as f:
+                pickle.dump({
+                    'prediction_horizons': prediction_horizons,
+                    'best_horizon': best_horizon,
+                    'best_horizon_idx': best_horizon_idx,
+                    'horizon_errors': horizon_errors
+                }, f)
+            logger.info(f"Prediction horizons saved to {horizons_path}")
+            
             # Save model metadata
             metadata = {
                 'ticker': ticker,
@@ -417,7 +470,10 @@ class ModelTrainer:
                 'final_train_loss': float(history.history['loss'][-1]),
                 'final_val_loss': float(history.history['val_loss'][-1]),
                 'training_samples': len(X_train),
-                'validation_samples': len(X_val)
+                'validation_samples': len(X_val),
+                'prediction_horizons': prediction_horizons,
+                'best_horizon': best_horizon,
+                'best_horizon_rmse': float(best_horizon_rmse)
             }
             
             metadata_path = os.path.join(self.models_dir, f"{ticker}_metadata.json")
@@ -443,11 +499,11 @@ class ModelTrainer:
             
         Returns:
         --------
-        dict : Dictionary mapping tickers to their trained models
+        dict : Dictionary with 'models' key mapping to trained models
         """
         if data is None or data.empty:
             logger.error("Cannot train models: Empty data")
-            return {}
+            return {"models": {}}
         
         # Check if we have a ticker column
         if 'ticker' not in data.columns:
@@ -458,7 +514,7 @@ class ModelTrainer:
         tickers = data['ticker'].unique()
         logger.info(f"Training models for {len(tickers)} tickers: {tickers}")
         
-        models = {}
+        trained_models = {}
         successful_tickers = []
         failed_tickers = []
         
@@ -477,7 +533,7 @@ class ModelTrainer:
                 model, scaler, features = self.train_lstm_model(data, ticker, min_data_points=min_data_points)
                 
                 if model is not None:
-                    models[ticker] = {'model': model, 'scaler': scaler, 'features': features}
+                    trained_models[ticker] = {'model': model, 'scaler': scaler, 'features': features}
                     successful_tickers.append(ticker)
                 else:
                     failed_tickers.append({'ticker': ticker, 'reason': 'training_failed'})
@@ -489,7 +545,7 @@ class ModelTrainer:
         if failed_tickers:
             logger.warning(f"Failed to train models for {len(failed_tickers)} tickers")
             
-        return models
+        return {"models": trained_models, "scalers": {}, "features": {}}
     
     def load_lstm_models(self):
         """
@@ -497,12 +553,10 @@ class ModelTrainer:
         
         Returns:
         --------
-        dict : Dictionary of loaded models, scalers, and features
+        dict : Dictionary with 'models' key mapping to loaded models with their scalers and features
         """
         result = {
-            "models": {},
-            "scalers": {},
-            "features": {}
+            "models": {}
         }
         
         model_files = [f for f in os.listdir(self.models_dir) if f.endswith("_lstm.h5")]
@@ -531,9 +585,11 @@ class ModelTrainer:
                 with open(features_path, 'rb') as f:
                     features = pickle.load(f)
                 
-                result["models"][ticker] = model
-                result["scalers"][ticker] = scaler
-                result["features"][ticker] = features
+                result["models"][ticker] = {
+                    'model': model,
+                    'scaler': scaler,
+                    'features': features
+                }
                 
                 print(f"Successfully loaded model for {ticker}")
             except Exception as e:
@@ -542,184 +598,453 @@ class ModelTrainer:
         print(f"Successfully loaded {len(result['models'])} models.")
         return result
     
-    def predict_lstm(self, models_dict, data, horizon="short"):
+    def predict_lstm(self, models, data):
         """
-        Generate predictions using trained LSTM models.
+        Generate predictions using the trained LSTM models.
         
-        Parameters:
-        -----------
-        models_dict : dict
-            Dictionary of trained models, scalers, and features
-        data : pd.DataFrame
-            Data to base predictions on
-        horizon : str, optional
-            Time horizon for predictions - "short", "mid", or "long"
+        Args:
+            models (dict): Dictionary of trained LSTM models.
+            data (pd.DataFrame): DataFrame containing the data to make predictions for.
             
         Returns:
-        --------
-        pd.DataFrame : Predictions
+            pd.DataFrame: DataFrame with original data and predictions.
         """
-        predictions = []
-        
-        # Define the number of steps to predict based on horizon
-        if horizon == "short":
-            prediction_days = [1, 5, 21]  # 1 day, 1 week, 1 month
-            labels = ["next_day", "next_week", "next_month"]
-        elif horizon == "mid":
-            prediction_days = [63, 126]  # ~3 months, ~6 months
-            labels = ["next_quarter", "next_half_year"]
-        elif horizon == "long":
-            prediction_days = [252]  # ~1 year
-            labels = ["next_year"]
-        else:
-            raise ValueError("Invalid horizon. Choose 'short', 'mid', or 'long'.")
-        
-        seq_length = 60  # Same as used in training
-        
-        for ticker, ticker_data in data.groupby('ticker'):
-            if ticker not in models_dict["models"]:
-                print(f"No model found for {ticker}, skipping predictions...")
-                continue
-            
-            model = models_dict["models"][ticker]
-            scaler = models_dict["scalers"][ticker]
-            features = models_dict["features"][ticker]
-            
-            # Sort by date
-            ticker_data = ticker_data.sort_values('Date')
-            
-            # Select available features
-            available_features = [f for f in features if f in ticker_data.columns]
-            X = ticker_data[available_features].values
-            
-            # Scale the features
-            X_scaled = scaler.transform(X)
-            
-            # Create input sequence for prediction
-            if len(X_scaled) < seq_length:
-                print(f"Not enough data for {ticker} (need at least {seq_length} data points)")
-                continue
-            
-            # Get latest date and price
-            latest_date = ticker_data.iloc[-1]['Date']
-            latest_price = ticker_data.iloc[-1]['Price'] if 'Price' in ticker_data.columns else ticker_data.iloc[-1]['Close']
-            
-            ticker_pred = {
-                'ticker': ticker,
-                'last_date': latest_date,
-                'latest_price': latest_price
-            }
-            
-            # Make predictions for each time horizon
-            for days, label in zip(prediction_days, labels):
-                # Start with the last sequence of data
-                pred_sequence = X_scaled[-seq_length:].copy()
-                
-                # Iteratively predict future days
-                for day in range(days):
-                    # Reshape for prediction
-                    X_pred = pred_sequence[-seq_length:].reshape(1, seq_length, len(available_features))
-                    
-                    # Predict next value (scaled)
-                    next_scaled_price = model.predict(X_pred)[0][0]
-                    
-                    # Create a new row for the prediction
-                    new_row = pred_sequence[-1:].copy()
-                    new_row[0, 0] = next_scaled_price  # Update price
-                    
-                    # Add prediction to sequence for next iteration
-                    pred_sequence = np.vstack([pred_sequence, new_row])
-                
-                # Get final prediction and convert back to original scale
-                final_scaled = pred_sequence[-1:].copy()
-                final_scaled_array = np.zeros_like(final_scaled)
-                final_scaled_array[0, 0] = final_scaled[0, 0]
-                
-                # Inverse transform to get the actual price prediction
-                predicted_price = scaler.inverse_transform(final_scaled_array)[0, 0]
-                
-                # Calculate percentage change
-                predicted_change = ((predicted_price / latest_price) - 1) * 100
-                
-                # Add to the prediction dictionary
-                ticker_pred[f'{label}_price'] = predicted_price
-                ticker_pred[f'{label}_change'] = predicted_change
-            
-            predictions.append(ticker_pred)
-        
-        if predictions:
-            return pd.DataFrame(predictions)
-        else:
-            print("No predictions generated.")
+        if models is None or not models.get('models') or data is None or data.empty:
+            logger.warning("No models or data available for prediction")
             return pd.DataFrame()
-    
-    def predict_next_n_days(self, model, scaler, last_sequence, n_days=7, feature_count=None):
-        """
-        Predict prices for the next n days.
+            
+        # Create a copy of the data to avoid modifying the original
+        predictions_df = data.copy()
         
-        Parameters:
-        -----------
-        model : keras.Model
-            Trained LSTM model
-        scaler : MinMaxScaler
-            Scaler used for feature normalization
-        last_sequence : numpy.ndarray
-            Last sequence used for prediction
-        n_days : int, optional
-            Number of days to predict
-        feature_count : int, optional
-            Number of features used in training
+        # Add prediction columns
+        predictions_df['predicted_1d'] = np.nan
+        predictions_df['predicted_3d'] = np.nan
+        predictions_df['predicted_7d'] = np.nan
+        predictions_df['predicted_14d'] = np.nan
+        predictions_df['predicted_30d'] = np.nan
+        
+        # Group by ticker
+        for ticker, ticker_data in predictions_df.groupby('ticker'):
+            if ticker not in models['models']:
+                logger.warning(f"No model found for ticker {ticker}")
+                continue
+                
+            ticker_model = models['models'][ticker]
+            model = ticker_model['model']
+            scaler = ticker_model['scaler']
+            features = ticker_model['features']
+            
+            # Get numerical features only
+            numeric_data = ticker_data[features].copy()
+            
+            # Scale the data
+            scaled_data = scaler.transform(numeric_data)
+            
+            # Create sequences
+            X, _ = self._create_sequences(scaled_data, self.sequence_length)
+            
+            if len(X) == 0:
+                logger.warning(f"Not enough data to create sequences for {ticker}")
+                continue
+                
+            # Make predictions
+            predictions = model.predict(X)
+            
+            # Adjust indices to match original dataframe
+            start_idx = ticker_data.index[self.sequence_length]
+            end_idx = ticker_data.index[self.sequence_length + len(predictions) - 1]
+            
+            pred_indices = predictions_df.loc[start_idx:end_idx].index
+            
+            # For each prediction horizon
+            for i, days in enumerate([1, 3, 7, 14, 30]):
+                col_name = f'predicted_{days}d'
+                
+                # Skip if we don't have enough predictions
+                if i >= predictions.shape[1]:
+                    continue
+                    
+                # Create a Series with predictions
+                pred_series = pd.Series(predictions[:, i], index=pred_indices)
+                
+                # Update the dataframe
+                predictions_df.loc[pred_indices, col_name] = pred_series
+        
+        return predictions_df
+        
+    def prepare_sequence_for_prediction(self, data, features, scaler):
+        """
+        Prepare the last sequence from the data for prediction.
+        
+        Args:
+            data (pd.DataFrame): DataFrame containing the stock data.
+            features (list): List of features used by the model.
+            scaler (object): Fitted scaler used to normalize the data.
             
         Returns:
-        --------
-        list : Predicted prices for next n days
+            tuple: (last_sequence, available_features)
+                - last_sequence: The last sequence of data scaled and ready for prediction
+                - available_features: List of features actually used (in case some were missing)
         """
         try:
-            # Validate inputs
-            if model is None or scaler is None or last_sequence is None:
-                logger.error("Cannot predict: Missing model, scaler, or sequence data")
-                return []
+            # Get the available features (some may be missing in the data)
+            available_features = [f for f in features if f in data.columns]
             
-            if len(last_sequence.shape) != 3:
-                logger.error(f"Invalid sequence shape: {last_sequence.shape}. Expected 3D array.")
-                return []
+            if not available_features:
+                logger.error("No required features found in data")
+                return None, []
+                
+            # Get numerical features only
+            numeric_data = data[available_features].copy()
             
-            # Initialize with the last sequence
-            curr_sequence = last_sequence.copy()
-            predicted_prices = []
+            # Handle NaN values (forward fill, then backward fill, then zero)
+            numeric_data = numeric_data.ffill().bfill().fillna(0)
             
-            for _ in range(n_days):
-                # Predict next price
-                try:
-                    predicted_scaled = model.predict(curr_sequence)
-                    
-                    # Create a row with all features
-                    if feature_count is None:
-                        feature_count = curr_sequence.shape[2]
-                    
-                    # Use the last row as template and update the price (first column)
-                    next_row = curr_sequence[0, -1, :].reshape(1, -1)
-                    next_row[0, 0] = predicted_scaled[0, 0]
-                    
-                    # Inverse transform to get actual price
-                    predicted_full_row = scaler.inverse_transform(next_row)
-                    predicted_price = predicted_full_row[0, 0]
-                    
-                    predicted_prices.append(predicted_price)
-                    
-                    # Update sequence for next prediction
-                    next_seq = np.roll(curr_sequence[0], -1, axis=0)
-                    next_seq[-1] = next_row
-                    curr_sequence = np.array([next_seq])
-                except Exception as e:
-                    logger.error(f"Error in prediction step: {str(e)}")
-                    break
+            # Scale the data
+            scaled_data = scaler.transform(numeric_data)
             
-            return predicted_prices
+            # Create the last sequence for prediction
+            if len(scaled_data) < self.sequence_length:
+                logger.warning(f"Not enough data points. Got {len(scaled_data)}, need {self.sequence_length}")
+                return None, available_features
+                
+            last_sequence = scaled_data[-self.sequence_length:]
+            last_sequence = np.expand_dims(last_sequence, axis=0)  # Add batch dimension
+            
+            return last_sequence, available_features
+            
         except Exception as e:
-            logger.error(f"Error in predict_next_n_days: {str(e)}")
-            return []
+            logger.error(f"Error preparing sequence: {str(e)}")
+            return None, []
             
+    def predict_future(self, model, last_sequence, scaler, features, days=30):
+        """
+        Predict future prices for a specified number of days.
+        Uses the best prediction horizon determined during training.
+        
+        Args:
+            model (keras.Model): Trained LSTM model.
+            last_sequence (numpy.ndarray): The last sequence of data for prediction.
+            scaler (object): The scaler used to normalize the data.
+            features (list): List of features used in the model.
+            days (int): Number of days to predict into the future.
+            
+        Returns:
+            numpy.ndarray: Array of predicted prices.
+        """
+        if model is None or last_sequence is None or scaler is None:
+            logger.error("Missing required components for prediction")
+            return np.array([])
+            
+        try:
+            # Try to load horizons information
+            # Determine which ticker this model is for
+            ticker = None
+            for t in os.listdir(self.models_dir):
+                if t.endswith("_lstm.h5") and os.path.exists(os.path.join(self.models_dir, t.replace("_lstm.h5", "_horizons.pkl"))):
+                    # Check if this model file matches our model
+                    if model == load_model(os.path.join(self.models_dir, t)):
+                        ticker = t.replace("_lstm.h5", "")
+                        break
+            
+            if ticker is None:
+                logger.warning("Could not determine ticker for this model, using default prediction method")
+                return self._predict_iterative(model, last_sequence, scaler, features, days)
+            
+            # Load horizons information
+            horizons_path = os.path.join(self.models_dir, f"{ticker}_horizons.pkl")
+            if not os.path.exists(horizons_path):
+                logger.warning(f"Horizons information not found, using default prediction method")
+                return self._predict_iterative(model, last_sequence, scaler, features, days)
+            
+            with open(horizons_path, 'rb') as f:
+                horizons_info = pickle.load(f)
+            
+            prediction_horizons = horizons_info['prediction_horizons']
+            best_horizon = horizons_info['best_horizon']
+            best_horizon_idx = horizons_info['best_horizon_idx']
+            
+            logger.info(f"Using best prediction horizon of {best_horizon} days for {ticker}")
+            
+            # Get the price feature index
+            price_idx = features.index('Price')
+            
+            # Make a copy of the last sequence
+            sequence = last_sequence.copy()
+            
+            # Predictions to return
+            predictions = []
+            
+            # Number of iterations needed to cover requested days
+            iterations = (days + best_horizon - 1) // best_horizon
+            days_predicted = 0
+            
+            for _ in range(iterations):
+                if days_predicted >= days:
+                    break
+                
+                # Get predictions for all horizons
+                horizon_preds = model.predict(sequence)[0]
+                
+                # Get prediction for best horizon
+                best_pred_scaled = horizon_preds[best_horizon_idx]
+                
+                # Create dummy array for inverse scaling
+                dummy = np.zeros((1, len(features)))
+                dummy[0, price_idx] = best_pred_scaled
+                
+                # Inverse transform to get actual price
+                best_pred = scaler.inverse_transform(dummy)[0, price_idx]
+                
+                # Add to predictions
+                predictions.append(best_pred)
+                
+                # Update sequence for next prediction
+                # We'll shift by best_horizon days
+                for _ in range(min(best_horizon, days - days_predicted)):
+                    # Shift sequence one step left
+                    sequence_shifted = sequence[0, 1:, :].copy()
+                    
+                    # Add new prediction as last entry
+                    new_row = sequence_shifted[-1, :].copy()
+                    new_row[price_idx] = best_pred_scaled
+                    
+                    sequence_with_new = np.vstack([sequence_shifted, new_row.reshape(1, -1)])
+                    sequence[0] = sequence_with_new
+                    
+                    days_predicted += 1
+                    
+                    if days_predicted >= days:
+                        break
+            
+            if len(predictions) > days:
+                predictions = predictions[:days]
+                
+            return np.array(predictions)
+                
+        except Exception as e:
+            logger.error(f"Error in predict_future: {str(e)}")
+            logger.info("Falling back to default prediction method")
+            return self._predict_iterative(model, last_sequence, scaler, features, days)
+    
+    def _predict_iterative(self, model, last_sequence, scaler, features, days=30):
+        """
+        Fallback method to predict future prices iteratively (day by day).
+        
+        Args:
+            model (keras.Model): Trained LSTM model.
+            last_sequence (numpy.ndarray): The last sequence of data for prediction.
+            scaler (object): The scaler used to normalize the data.
+            features (list): List of features used in the model.
+            days (int): Number of days to predict into the future.
+            
+        Returns:
+            numpy.ndarray: Array of predicted prices.
+        """
+        # Get the price feature index
+        price_idx = features.index('Price')
+        
+        # Make a copy of the last sequence
+        sequence = last_sequence.copy()
+        
+        # Store predictions
+        predictions = []
+        
+        for _ in range(days):
+            # Predict next day
+            pred = model.predict(sequence)[0]
+            
+            # For multi-horizon model, use first output (1-day prediction)
+            if isinstance(pred, np.ndarray) and pred.size > 1:
+                pred = pred[0]
+            
+            # Save prediction
+            predictions.append(pred)
+            
+            # Update sequence for next prediction
+            # Shift sequence one step left
+            sequence_shifted = sequence[0, 1:, :].copy()
+            
+            # Add new prediction as last entry
+            new_row = sequence_shifted[-1, :].copy()
+            new_row[price_idx] = pred
+            
+            sequence_with_new = np.vstack([sequence_shifted, new_row.reshape(1, -1)])
+            sequence[0] = sequence_with_new
+        
+        # Convert predictions to original scale
+        dummy = np.zeros((len(predictions), len(features)))
+        dummy[:, price_idx] = predictions
+        
+        # Inverse transform
+        unscaled_predictions = scaler.inverse_transform(dummy)[:, price_idx]
+        
+        return unscaled_predictions
+    
+    def backtracking_analysis(self, data, model, scaler, features, periods):
+        """
+        Perform backtracking analysis for a model on historical periods.
+        
+        Args:
+            data (pd.DataFrame): DataFrame with historical data.
+            model (keras.Model): Trained LSTM model.
+            scaler (object): Scaler used to normalize data.
+            features (list): Features used by the model.
+            periods (dict): Dictionary with period names as keys and (start_date, end_date) tuples as values.
+            
+        Returns:
+            dict: Dictionary with period names as keys and performance metrics as values.
+        """
+        if data is None or data.empty or model is None or scaler is None:
+            logger.error("Missing required components for backtracking analysis")
+            return {}
+            
+        try:
+            # Ensure data has a datetime index or Date column
+            if 'Date' in data.columns:
+                data = data.copy()
+                if not pd.api.types.is_datetime64_any_dtype(data['Date']):
+                    data['Date'] = pd.to_datetime(data['Date'])
+            else:
+                logger.error("Date column not found in data")
+                return {}
+                
+            results = {}
+            
+            for period_name, (start_date, end_date) in periods.items():
+                start_date = pd.to_datetime(start_date)
+                end_date = pd.to_datetime(end_date)
+                
+                # Filter data for this period
+                period_data = data[(data['Date'] >= start_date) & (data['Date'] <= end_date)].copy()
+                
+                # Skip if not enough data
+                if len(period_data) < self.sequence_length + 30:
+                    logger.warning(f"Not enough data for period {period_name}")
+                    continue
+                    
+                # Get available features
+                available_features = [f for f in features if f in period_data.columns]
+                
+                if not available_features:
+                    logger.warning(f"No required features in data for period {period_name}")
+                    continue
+                    
+                # Prepare data
+                numeric_data = period_data[available_features].copy()
+                numeric_data = numeric_data.ffill().bfill().fillna(0)
+                scaled_data = scaler.transform(numeric_data)
+                
+                # Create sequences
+                X, _ = self._create_sequences(scaled_data, self.sequence_length)
+                
+                if len(X) == 0:
+                    logger.warning(f"Not enough data to create sequences for period {period_name}")
+                    continue
+                    
+                # Make predictions
+                predictions = model.predict(X)
+                
+                # Extract actual prices for comparison
+                price_idx = features.index('Price') if 'Price' in features else None
+                if price_idx is None:
+                    logger.warning("Price feature not found in model features")
+                    continue
+                    
+                # For each prediction horizon
+                period_results = {}
+                
+                for i, days in enumerate([1, 3, 7, 14, 30]):
+                    # Skip if we don't have enough predictions or data
+                    if i >= predictions.shape[1] or days >= len(period_data) - self.sequence_length:
+                        continue
+                        
+                    # Get actual prices
+                    actual_prices = []
+                    for j in range(len(predictions)):
+                        if self.sequence_length + j + days < len(period_data):
+                            actual_prices.append(period_data['Price'].iloc[self.sequence_length + j + days])
+                            
+                    if not actual_prices:
+                        continue
+                        
+                    # Create dummy arrays for inverse scaling
+                    pred_dummy = np.zeros((len(predictions), len(features)))
+                    pred_dummy[:, price_idx] = predictions[:, i]
+                    
+                    # Inverse transform
+                    unscaled_predictions = scaler.inverse_transform(pred_dummy)[:, price_idx]
+                    
+                    # Compute metrics
+                    actual_prices = np.array(actual_prices[:len(unscaled_predictions)])
+                    
+                    # Calculate metrics
+                    mse = np.mean((unscaled_predictions - actual_prices) ** 2)
+                    rmse = np.sqrt(mse)
+                    mae = np.mean(np.abs(unscaled_predictions - actual_prices))
+                    mape = np.mean(np.abs((actual_prices - unscaled_predictions) / actual_prices)) * 100
+                    
+                    # Coefficient of determination (R²)
+                    ss_res = np.sum((actual_prices - unscaled_predictions) ** 2)
+                    ss_tot = np.sum((actual_prices - np.mean(actual_prices)) ** 2)
+                    r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
+                    
+                    # Store results
+                    period_results[f'{days}d'] = {
+                        'mse': float(mse),
+                        'rmse': float(rmse),
+                        'mae': float(mae),
+                        'mape': float(mape),
+                        'r2': float(r2),
+                        'samples': len(actual_prices)
+                    }
+                
+                # Add summary stats for the period
+                if period_results:
+                    # Get average metrics across horizons
+                    avg_mse = np.mean([res['mse'] for _, res in period_results.items()])
+                    avg_rmse = np.mean([res['rmse'] for _, res in period_results.items()])
+                    avg_mae = np.mean([res['mae'] for _, res in period_results.items()])
+                    avg_mape = np.mean([res['mape'] for _, res in period_results.items()])
+                    avg_r2 = np.mean([res['r2'] for _, res in period_results.items()])
+                    
+                    period_results['summary'] = {
+                        'avg_mse': float(avg_mse),
+                        'avg_rmse': float(avg_rmse),
+                        'avg_mae': float(avg_mae),
+                        'avg_mape': float(avg_mape),
+                        'avg_r2': float(avg_r2),
+                        'start_date': start_date.strftime('%Y-%m-%d'),
+                        'end_date': end_date.strftime('%Y-%m-%d'),
+                        'data_points': len(period_data)
+                    }
+                    
+                    # Add trend analysis
+                    period_prices = period_data['Price'].values
+                    price_change = (period_prices[-1] / period_prices[0] - 1) * 100
+                    
+                    if price_change > 15:
+                        trend = "Strong Uptrend"
+                    elif price_change > 5:
+                        trend = "Moderate Uptrend"
+                    elif price_change > -5:
+                        trend = "Sideways"
+                    elif price_change > -15:
+                        trend = "Moderate Downtrend"
+                    else:
+                        trend = "Strong Downtrend"
+                        
+                    period_results['summary']['trend'] = trend
+                    period_results['summary']['price_change_pct'] = float(price_change)
+                    
+                    results[period_name] = period_results
+            
+            return results
+            
+        except Exception as e:
+            logger.error(f"Error in backtracking_analysis: {str(e)}")
+            return {}
+    
     def load_model(self, ticker):
         """
         Load a saved model for a specific ticker.

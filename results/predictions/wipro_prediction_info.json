@@ -1,0 +1,12 @@
+{
+  "ticker": "wipro",
+  "best_horizon_days": 14,
+  "days_predicted": 30,
+  "start_date": "2025-01-01",
+  "end_date": "2025-01-31",
+  "start_price": 300.3,
+  "end_price": 288.82263001799583,
+  "expected_return_percent": -3.8219680259754196,
+  "prediction_data": "./results/predictions/wipro_predictions.csv",
+  "prediction_plot": "./results/predictions/wipro_future_prediction.png"
+}

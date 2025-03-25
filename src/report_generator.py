@@ -6,6 +6,9 @@ Supports PDF and Excel report generation with visualizations.
 import os
 import pandas as pd
 import numpy as np
+import matplotlib
+# Set the backend to non-interactive 'Agg' to avoid GUI issues
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime

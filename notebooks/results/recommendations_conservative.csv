@@ -1,3 +1,0 @@
-ticker,current_price,recommendation,strength,allocation,expected_return,risk_category,notes
-GOOGL,77.2586162629194,Weak Hold,2,0.5,0.9552262605595052,Medium,Expected return of 1.0% over prediction period. Risk profile: Medium (score: 5.6/10). Price target: $78.00 by 2025-04-24. Recommended allocation: 50.0% of portfolio.
-AAPL,119.63279000849549,Hold,3,0.5,2.146375138300338,Medium,Expected return of 2.1% over prediction period. Risk profile: Medium (score: 4.2/10). Price target: $122.20 by 2025-04-24. Recommended allocation: 50.0% of portfolio.

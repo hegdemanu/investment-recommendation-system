@@ -1,0 +1,49 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+.conda/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Cache files
+.cache/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Model files
+*.h5
+*.pkl
+*.pt
+*.pth
+
+# Temporary files
+tmp/
+
+# Large data files
+*.csv
+!data/stocks/*.csv  # Keep stock CSV files
+!data/mutual_funds/*.csv  # Keep mutual fund CSV files 

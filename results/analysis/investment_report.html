@@ -1,0 +1,294 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Investment Recommendation Report</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                margin: 0;
+                padding: 20px;
+                color: #333;
+            }
+            h1, h2, h3 {
+                color: #2c3e50;
+            }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            .header {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 5px;
+                margin-bottom: 20px;
+            }
+            .section {
+                margin-bottom: 30px;
+                padding: 20px;
+                background: #fff;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+            th, td {
+                padding: 12px 15px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+            tr:hover {
+                background-color: #f5f5f5;
+            }
+            .positive {
+                color: green;
+            }
+            .negative {
+                color: red;
+            }
+            .recommendation {
+                padding: 15px;
+                margin-bottom: 10px;
+                border-radius: 5px;
+            }
+            .conservative {
+                background-color: #e8f4f8;
+                border-left: 4px solid #4b86b4;
+            }
+            .moderate {
+                background-color: #edf7ed;
+                border-left: 4px solid #63c461;
+            }
+            .aggressive {
+                background-color: #fff8e8;
+                border-left: 4px solid #ffba49;
+            }
+            .img-container {
+                margin: 20px 0;
+                text-align: center;
+            }
+            img {
+                max-width: 100%;
+                height: auto;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Investment Recommendation Report</h1>
+                <p>Generated on: 2025-03-25 06:54:07</p>
+                <p>This report provides an analysis of predicted stock performance over the next 30 days.</p>
+            </div>
+            
+            <div class="section">
+                <h2>Executive Summary</h2>
+                <p>Based on our predictive models, we have analyzed 12 stocks and categorized them according to expected returns and risk profiles.</p>
+                <p>Top performers: ADNA (28.79%), asian (9.86%), nestle (5.76%) show the highest expected returns.</p>
+                <p>Stocks with negative expected returns: wipro (-3.82%), ultratech (-1.14%), Apollo (-0.38%), icici (-0.26%), jsw (-0.20%).</p>
+            </div>
+            
+            <div class="section">
+                <h2>Risk-Return Analysis</h2>
+                <div class="img-container">
+                    <img src="results/analysis/risk_return_profile.png" alt="Risk-Return Profile">
+                </div>
+                <div class="img-container">
+                    <img src="results/analysis/return_comparison.png" alt="Return Comparison">
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Detailed Stock Predictions</h2>
+                <table>
+                    <tr>
+                        <th>Stock</th>
+                        <th>Starting Price</th>
+                        <th>Predicted Price (30d)</th>
+                        <th>Expected Return</th>
+                        <th>Volatility</th>
+                        <th>Best Prediction Horizon</th>
+                    </tr>
+    
+                    <tr>
+                        <td>ADNA</td>
+                        <td>1046.40</td>
+                        <td>1347.71</td>
+                        <td class="positive">28.79%</td>
+                        <td>N/A</td>
+                        <td>1 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>asian</td>
+                        <td>2304.65</td>
+                        <td>2531.79</td>
+                        <td class="positive">9.86%</td>
+                        <td>N/A</td>
+                        <td>3 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>nestle</td>
+                        <td>2169.25</td>
+                        <td>2294.22</td>
+                        <td class="positive">5.76%</td>
+                        <td>N/A</td>
+                        <td>3 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>titan</td>
+                        <td>3253.85</td>
+                        <td>3381.06</td>
+                        <td class="positive">3.91%</td>
+                        <td>N/A</td>
+                        <td>1 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>ongc</td>
+                        <td>236.95</td>
+                        <td>244.16</td>
+                        <td class="positive">3.04%</td>
+                        <td>N/A</td>
+                        <td>1 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>infosys</td>
+                        <td>1882.50</td>
+                        <td>1885.18</td>
+                        <td class="positive">0.14%</td>
+                        <td>N/A</td>
+                        <td>3 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>bajaj</td>
+                        <td>6935.30</td>
+                        <td>6941.06</td>
+                        <td class="positive">0.08%</td>
+                        <td>N/A</td>
+                        <td>3 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>jsw</td>
+                        <td>905.45</td>
+                        <td>903.67</td>
+                        <td class="negative">-0.20%</td>
+                        <td>N/A</td>
+                        <td>14 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>icici</td>
+                        <td>1283.65</td>
+                        <td>1280.32</td>
+                        <td class="negative">-0.26%</td>
+                        <td>N/A</td>
+                        <td>14 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>Apollo</td>
+                        <td>7369.65</td>
+                        <td>7341.35</td>
+                        <td class="negative">-0.38%</td>
+                        <td>N/A</td>
+                        <td>7 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>ultratech</td>
+                        <td>11447.00</td>
+                        <td>11316.91</td>
+                        <td class="negative">-1.14%</td>
+                        <td>N/A</td>
+                        <td>3 days</td>
+                    </tr>
+        
+                    <tr>
+                        <td>wipro</td>
+                        <td>300.30</td>
+                        <td>288.82</td>
+                        <td class="negative">-3.82%</td>
+                        <td>N/A</td>
+                        <td>14 days</td>
+                    </tr>
+        
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>Investment Recommendations by Risk Profile</h2>
+    
+                <div class="recommendation conservative">
+                    <h3>Conservative Investor</h3>
+                    <p>For investors with low risk tolerance, focusing on stable returns with lower volatility:</p>
+                    <ul>
+                        
+                    </ul>
+                </div>
+                
+                <div class="recommendation moderate">
+                    <h3>Moderate Investor</h3>
+                    <p>For investors seeking a balance between risk and return:</p>
+                    <ul>
+                        
+                    </ul>
+                </div>
+                
+                <div class="recommendation aggressive">
+                    <h3>Aggressive Investor</h3>
+                    <p>For investors willing to accept higher volatility for potentially higher returns:</p>
+                    <ul>
+                        
+                    </ul>
+                </div>
+    
+            </div>
+            
+            <div class="section">
+                <h2>Model Prediction Horizons Analysis</h2>
+                <p>Our analysis shows which prediction horizons worked best for different stocks:</p>
+    
+                <h3>14-Day Horizon</h3>
+                <p>These stocks performed best with a 14-day prediction horizon: jsw, wipro, icici</p>
+        
+                <h3>1-Day Horizon</h3>
+                <p>These stocks performed best with a 1-day prediction horizon: titan, ADNA, ongc</p>
+        
+                <h3>3-Day Horizon</h3>
+                <p>These stocks performed best with a 3-day prediction horizon: ultratech, infosys, nestle, bajaj, asian</p>
+        
+                <h3>7-Day Horizon</h3>
+                <p>These stocks performed best with a 7-day prediction horizon: Apollo</p>
+        
+            </div>
+            
+            <div class="section">
+                <h2>Methodology</h2>
+                <p>Predictions were generated using LSTM (Long Short-Term Memory) models trained on historical price data. The models were trained on several months of data and optimized for the best prediction horizon for each stock.</p>
+                <p>Risk metrics were calculated based on the volatility of predicted daily returns.</p>
+                <p>Recommendations are based on a combination of expected returns, volatility, and risk-adjusted performance metrics.</p>
+            </div>
+            
+            <div class="section">
+                <h2>Disclaimer</h2>
+                <p>This report is for informational purposes only and does not constitute investment advice. Past performance and predictions are not guarantees of future results. Always conduct your own research before making investment decisions.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    

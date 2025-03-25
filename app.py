@@ -92,7 +92,7 @@ def upload_csv():
         
         # Load and preprocess data
         try:
-            data = data_processor.load_from_csv(filepath)
+            data = data_processor.load_file(filepath)
             
             if data is None or data.empty:
                 return jsonify({'error': 'Failed to load data from uploaded file. The file may be empty or in an incorrect format.'}), 400
@@ -294,47 +294,571 @@ def train_models():
         data_drift = model_trainer.check_data_drift(cached_data)
         if not data_drift:
             # Try to load existing models
-            lstm_models = model_trainer.load_lstm_models()
-            if lstm_models['models']:
-                cached_predictions = model_trainer.predict_lstm(lstm_models, cached_data)
-                return jsonify({
-                    'success': True,
-                    'message': f'Using existing LSTM models for {len(lstm_models["models"])} tickers. No significant data drift detected.',
-                    'predictions_info': {
-                        'rows': len(cached_predictions),
-                        'tickers': list(cached_predictions['ticker'].unique()) if not cached_predictions.empty else []
-                    }
-                })
+            try:
+                lstm_models = model_trainer.load_lstm_models()
+                if lstm_models and lstm_models.get('models'):
+                    cached_predictions = model_trainer.predict_lstm(lstm_models, cached_data)
+                    return jsonify({
+                        'success': True,
+                        'message': f'Using existing LSTM models for {len(lstm_models["models"])} tickers. No significant data drift detected.',
+                        'predictions_info': {
+                            'rows': len(cached_predictions),
+                            'tickers': list(cached_predictions['ticker'].unique()) if not cached_predictions.empty else []
+                        }
+                    })
+            except Exception as e:
+                logger.warning(f"Error loading existing models: {str(e)}")
     
     try:
         results = {}
         
         # Train LSTM models
         if model_type in ['lstm', 'all']:
-            lstm_models = model_trainer.train_lstm_models(cached_data)
-            cached_predictions = model_trainer.predict_lstm(lstm_models, cached_data)
-            results['lstm'] = {
-                'models_trained': len(lstm_models['models']),
-                'predictions_generated': len(cached_predictions)
-            }
+            try:
+                lstm_models = model_trainer.train_lstm_models(cached_data)
+                if lstm_models:
+                    cached_predictions = model_trainer.predict_lstm(lstm_models, cached_data)
+                    results['lstm'] = {
+                        'models_trained': len(lstm_models.get('models', [])),
+                        'predictions_generated': len(cached_predictions) if cached_predictions is not None else 0
+                    }
+            except Exception as e:
+                logger.error(f"Error training LSTM models: {str(e)}")
+                results['lstm'] = {'error': str(e)}
         
         # Train long-term models
         if model_type in ['long_term', 'all']:
-            long_term_models = long_term_predictor.fit_long_term_models(cached_data)
-            cached_long_term_predictions = long_term_predictor.predict_ensemble(long_term_models, cached_data)
-            results['long_term'] = {
-                'arima_garch_models_trained': len(long_term_models['arima_garch']),
-                'prophet_models_trained': len(long_term_models['prophet']),
-                'predictions_generated': len(cached_long_term_predictions)
-            }
+            try:
+                long_term_models = long_term_predictor.fit_long_term_models(cached_data)
+                if long_term_models:
+                    cached_long_term_predictions = long_term_predictor.predict_ensemble(long_term_models, cached_data)
+                    results['long_term'] = {
+                        'arima_garch_models_trained': len(long_term_models.get('arima_garch', [])),
+                        'prophet_models_trained': len(long_term_models.get('prophet', [])),
+                        'predictions_generated': len(cached_long_term_predictions) if cached_long_term_predictions is not None else 0
+                    }
+            except Exception as e:
+                logger.error(f"Error training long-term models: {str(e)}")
+                results['long_term'] = {'error': str(e)}
         
+        if not results:
+            return jsonify({'error': 'No models were trained successfully'}), 500
+            
         return jsonify({
             'success': True,
             'message': 'Models trained successfully',
             'results': results
         })
     except Exception as e:
+        logger.error(f"Error training models: {str(e)}")
         return jsonify({'error': f'Error training models: {str(e)}'}), 500
+
+@app.route('/api/multi-timeframe-predictions', methods=['POST'])
+def multi_timeframe_predictions():
+    """API endpoint for generating predictions across multiple time frames."""
+    global cached_data, cached_predictions
+    
+    if cached_data is None:
+        return jsonify({'error': 'No data available. Please upload or fetch data first.'}), 400
+    
+    # Get parameters from request
+    data = request.get_json() or {}
+    ticker = data.get('ticker')  # Optional - filter by ticker
+    
+    try:
+        # Get ticker-specific data if specified
+        if ticker and 'ticker' in cached_data.columns:
+            ticker_data = cached_data[cached_data['ticker'] == ticker].copy()
+            if ticker_data.empty:
+                return jsonify({'error': f'No data available for ticker: {ticker}'}), 404
+        else:
+            ticker_data = cached_data.copy()
+        
+        # Load models
+        lstm_models = model_trainer.load_lstm_models()
+        if not lstm_models or not lstm_models.get('models'):
+            # Try training models first
+            lstm_models = model_trainer.train_lstm_models(cached_data)
+            if not lstm_models or not lstm_models.get('models'):
+                return jsonify({'error': 'Failed to load or train models'}), 500
+        
+        # Get predictions for different time frames
+        timeframes = {
+            'short_term': 7,    # 1 week
+            'medium_term': 30,  # 1 month
+            'long_term': 90     # 3 months
+        }
+        
+        multi_tf_results = {}
+        
+        for ticker_name, ticker_data in ticker_data.groupby('ticker'):
+            # Skip if we don't have enough data
+            if len(ticker_data) < 60:  # Need at least 60 data points for prediction
+                continue
+                
+            # Get ticker model
+            if ticker_name not in lstm_models['models']:
+                continue
+                
+            ticker_model = lstm_models['models'][ticker_name]
+            
+            # Prepare data for prediction
+            last_sequence, available_features = model_trainer.prepare_sequence_for_prediction(
+                ticker_data, 
+                ticker_model['features'], 
+                ticker_model['scaler']
+            )
+            
+            if last_sequence is None:
+                continue
+                
+            # Generate predictions for each timeframe
+            tf_predictions = {}
+            last_price = ticker_data['Price'].iloc[-1]
+            
+            for tf_name, days in timeframes.items():
+                predictions = model_trainer.predict_future(
+                    ticker_model['model'],
+                    last_sequence,
+                    ticker_model['scaler'],
+                    available_features,
+                    days=days
+                )
+                
+                # Calculate metrics
+                tf_predictions[tf_name] = {
+                    'days': days,
+                    'final_price': float(predictions[-1]),
+                    'change_pct': float(((predictions[-1] / last_price) - 1) * 100),
+                    'predictions': [float(p) for p in predictions]
+                }
+            
+            multi_tf_results[ticker_name] = {
+                'timeframes': tf_predictions,
+                'last_price': float(last_price),
+                'last_date': ticker_data['Date'].iloc[-1].strftime('%Y-%m-%d')
+            }
+        
+        if not multi_tf_results:
+            return jsonify({'error': 'No valid predictions generated for any ticker'}), 500
+            
+        return jsonify({
+            'success': True,
+            'message': 'Multi-timeframe predictions generated successfully',
+            'ticker_count': len(multi_tf_results),
+            'predictions': multi_tf_results
+        })
+    except Exception as e:
+        logger.error(f"Error generating multi-timeframe predictions: {str(e)}")
+        return jsonify({'error': f'Error generating predictions: {str(e)}'}), 500
+
+@app.route('/api/backtracking-analysis', methods=['POST'])
+def backtracking_analysis():
+    """API endpoint for running backtracking analysis on historical data."""
+    global cached_data
+    
+    if cached_data is None:
+        return jsonify({'error': 'No data available. Please upload or fetch data first.'}), 400
+    
+    # Get parameters from request
+    data = request.get_json() or {}
+    ticker = data.get('ticker')  # Optional - filter by ticker
+    custom_periods = data.get('periods')  # Optional - custom periods for analysis
+    
+    try:
+        # Get ticker-specific data if specified
+        if ticker and 'ticker' in cached_data.columns:
+            ticker_data = cached_data[cached_data['ticker'] == ticker].copy()
+            if ticker_data.empty:
+                return jsonify({'error': f'No data available for ticker: {ticker}'}), 404
+        else:
+            ticker_data = cached_data.copy()
+        
+        # Need at least 180 days of data for meaningful backtracking
+        if len(ticker_data) < 180:
+            return jsonify({'error': 'Not enough historical data for backtracking analysis. Need at least 180 days.'}), 400
+        
+        # Load models
+        lstm_models = model_trainer.load_lstm_models()
+        if not lstm_models or not lstm_models.get('models'):
+            # Try training models first
+            lstm_models = model_trainer.train_lstm_models(cached_data)
+            if not lstm_models or not lstm_models.get('models'):
+                return jsonify({'error': 'Failed to load or train models'}), 500
+        
+        # Determine periods for backtracking
+        if custom_periods:
+            periods = custom_periods
+        else:
+            # Using equally spaced periods from the data
+            start_date = ticker_data['Date'].min()
+            end_date = ticker_data['Date'].max()
+            total_days = (end_date - start_date).days
+            
+            # Create 3 equal periods
+            period_length = total_days // 3
+            
+            periods = {
+                'early_period': (start_date.strftime('%Y-%m-%d'), 
+                              (start_date + pd.Timedelta(days=period_length)).strftime('%Y-%m-%d')),
+                'mid_period': ((start_date + pd.Timedelta(days=period_length+1)).strftime('%Y-%m-%d'),
+                            (start_date + pd.Timedelta(days=2*period_length)).strftime('%Y-%m-%d')),
+                'recent_period': ((start_date + pd.Timedelta(days=2*period_length+1)).strftime('%Y-%m-%d'),
+                               end_date.strftime('%Y-%m-%d'))
+            }
+        
+        backtracking_results = {}
+        
+        for ticker_name, ticker_group in ticker_data.groupby('ticker'):
+            # Skip if no model for this ticker
+            if ticker_name not in lstm_models['models']:
+                continue
+                
+            ticker_model = lstm_models['models'][ticker_name]
+            
+            # Perform backtracking for this ticker
+            ticker_results = model_trainer.backtracking_analysis(
+                ticker_group,
+                ticker_model['model'],
+                ticker_model['scaler'],
+                ticker_model['features'],
+                periods
+            )
+            
+            if ticker_results:
+                backtracking_results[ticker_name] = ticker_results
+        
+        if not backtracking_results:
+            return jsonify({'error': 'No valid backtracking results generated for any ticker'}), 500
+            
+        return jsonify({
+            'success': True,
+            'message': 'Backtracking analysis completed successfully',
+            'ticker_count': len(backtracking_results),
+            'periods': periods,
+            'results': backtracking_results
+        })
+    except Exception as e:
+        logger.error(f"Error performing backtracking analysis: {str(e)}")
+        return jsonify({'error': f'Error during backtracking: {str(e)}'}), 500
+
+@app.route('/api/risk-based-recommendations', methods=['POST'])
+def risk_based_recommendations():
+    """API endpoint for generating risk-based investment recommendations."""
+    global cached_data, cached_predictions
+    
+    if cached_data is None:
+        return jsonify({'error': 'No data available. Please upload or fetch data first.'}), 400
+    
+    # Get parameters from request
+    data = request.get_json() or {}
+    ticker = data.get('ticker')  # Optional - filter by ticker
+    risk_appetite = data.get('risk_appetite', 'moderate')  # 'conservative', 'moderate', or 'aggressive'
+    
+    # Validate risk appetite
+    if risk_appetite not in ['conservative', 'moderate', 'aggressive']:
+        risk_appetite = 'moderate'  # Default to moderate
+    
+    try:
+        # Get ticker-specific data if specified
+        if ticker and 'ticker' in cached_data.columns:
+            ticker_data = cached_data[cached_data['ticker'] == ticker].copy()
+            if ticker_data.empty:
+                return jsonify({'error': f'No data available for ticker: {ticker}'}), 404
+        else:
+            ticker_data = cached_data.copy()
+        
+        # Load models
+        lstm_models = model_trainer.load_lstm_models()
+        if not lstm_models or not lstm_models.get('models'):
+            # Try training models first
+            lstm_models = model_trainer.train_lstm_models(cached_data)
+            if not lstm_models or not lstm_models.get('models'):
+                return jsonify({'error': 'Failed to load or train models'}), 500
+        
+        # Define risk thresholds for different risk appetites
+        risk_thresholds = {
+            'conservative': {'min_return': 3, 'max_loss': 2, 'timeframe': 'short_term'},
+            'moderate': {'min_return': 5, 'max_loss': 5, 'timeframe': 'medium_term'},
+            'aggressive': {'min_return': 10, 'max_loss': 10, 'timeframe': 'long_term'}
+        }
+        
+        # Define timeframes
+        timeframes = {
+            'short_term': {'days': 7, 'name': '1 Week'},
+            'medium_term': {'days': 30, 'name': '1 Month'},
+            'long_term': {'days': 90, 'name': '3 Months'}
+        }
+        
+        recommendations = {}
+        
+        for ticker_name, ticker_group in ticker_data.groupby('ticker'):
+            # Skip if no model for this ticker
+            if ticker_name not in lstm_models['models']:
+                continue
+                
+            ticker_model = lstm_models['models'][ticker_name]
+            
+            # Prepare data for prediction
+            last_sequence, available_features = model_trainer.prepare_sequence_for_prediction(
+                ticker_group, 
+                ticker_model['features'], 
+                ticker_model['scaler']
+            )
+            
+            if last_sequence is None:
+                continue
+            
+            # Get predictions for different timeframes
+            multi_tf_predictions = {}
+            
+            for tf_key, tf_data in timeframes.items():
+                # Predict for this timeframe
+                predictions = model_trainer.predict_future(
+                    ticker_model['model'],
+                    last_sequence,
+                    ticker_model['scaler'],
+                    available_features,
+                    days=tf_data['days']
+                )
+                
+                # Store predictions
+                multi_tf_predictions[tf_key] = {
+                    'days': tf_data['days'],
+                    'name': tf_data['name'],
+                    'predictions': [float(p) for p in predictions],
+                    'final_price': float(predictions[-1]),
+                    'change_pct': float(((predictions[-1] / predictions[0]) - 1) * 100)
+                }
+            
+            # Last available price
+            last_price = ticker_group['Price'].iloc[-1]
+            
+            # Calculate expected returns for each timeframe
+            returns = {}
+            for tf, tf_data in multi_tf_predictions.items():
+                returns[tf] = float(((tf_data['final_price'] / last_price) - 1) * 100)
+            
+            # Get threshold for this risk appetite
+            threshold = risk_thresholds[risk_appetite]
+            
+            # Preferred timeframe for this risk appetite
+            preferred_tf = threshold['timeframe']
+            
+            # Make recommendation based on risk appetite
+            recommendation = {
+                'ticker': ticker_name,
+                'risk_appetite': risk_appetite,
+                'last_price': float(last_price),
+                'last_date': ticker_group['Date'].iloc[-1].strftime('%Y-%m-%d'),
+                'preferred_timeframe': preferred_tf,
+                'preferred_timeframe_name': timeframes[preferred_tf]['name'],
+                'expected_returns': returns,
+                'action': 'HOLD'  # Default action
+            }
+            
+            # Decide action based on expected return in preferred timeframe
+            expected_return = returns[preferred_tf]
+            
+            if expected_return >= threshold['min_return']:
+                recommendation['action'] = 'BUY'
+                recommendation['reason'] = f"Expected return of {expected_return:.2f}% exceeds minimum threshold of {threshold['min_return']}% for {risk_appetite} risk appetite"
+            elif expected_return <= -threshold['max_loss']:
+                recommendation['action'] = 'SELL'
+                recommendation['reason'] = f"Expected loss of {abs(expected_return):.2f}% exceeds maximum threshold of {threshold['max_loss']}% for {risk_appetite} risk appetite"
+            else:
+                recommendation['reason'] = f"Expected return of {expected_return:.2f}% is within thresholds for {risk_appetite} risk appetite"
+            
+            recommendations[ticker_name] = recommendation
+        
+        if not recommendations:
+            return jsonify({'error': 'No valid recommendations generated for any ticker'}), 500
+        
+        # Get actions counts
+        action_counts = {}
+        for ticker, rec in recommendations.items():
+            action = rec['action']
+            if action in action_counts:
+                action_counts[action] += 1
+            else:
+                action_counts[action] = 1
+            
+        return jsonify({
+            'success': True,
+            'message': 'Risk-based recommendations generated successfully',
+            'risk_appetite': risk_appetite,
+            'ticker_count': len(recommendations),
+            'action_summary': action_counts,
+            'recommendations': recommendations
+        })
+    except Exception as e:
+        logger.error(f"Error generating risk-based recommendations: {str(e)}")
+        return jsonify({'error': f'Error generating recommendations: {str(e)}'}), 500
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """API endpoint to check if the server is running."""
+    return jsonify({
+        'status': 'ok',
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'has_data': cached_data is not None,
+        'has_predictions': cached_predictions is not None,
+        'version': '1.0.0'
+    })
+
+@app.route('/api/get-predictions', methods=['GET'])
+def get_predictions():
+    """API endpoint to retrieve cached predictions."""
+    global cached_predictions
+    
+    # Get parameters
+    ticker = request.args.get('ticker')
+    
+    if cached_predictions is None or cached_predictions.empty:
+        return jsonify({'error': 'No predictions available. Please train models first.'}), 404
+    
+    try:
+        # Filter by ticker if specified
+        if ticker and 'ticker' in cached_predictions.columns:
+            ticker_preds = cached_predictions[cached_predictions['ticker'] == ticker]
+            if ticker_preds.empty:
+                return jsonify({'error': f'No predictions found for ticker: {ticker}'}), 404
+            predictions_to_return = ticker_preds
+        else:
+            predictions_to_return = cached_predictions
+        
+        # Convert to dict for JSON serialization
+        predictions_dict = predictions_to_return.to_dict(orient='records')
+        
+        return jsonify({
+            'success': True,
+            'message': 'Predictions retrieved successfully',
+            'count': len(predictions_dict),
+            'predictions': predictions_dict
+        })
+    except Exception as e:
+        logger.error(f"Error retrieving predictions: {str(e)}")
+        return jsonify({'error': f'Error retrieving predictions: {str(e)}'}), 500
+
+@app.route('/api/peg-analysis', methods=['POST'])
+def peg_analysis():
+    """API endpoint for performing PEG ratio analysis."""
+    global cached_data
+    
+    if cached_data is None:
+        return jsonify({'error': 'No data available. Please upload or fetch data first.'}), 400
+    
+    # Get parameters from request
+    data = request.get_json() or {}
+    ticker = data.get('ticker')  # Optional - filter by ticker
+    eps_data = data.get('eps_data')  # Optional - eps data to add to the dataset
+    
+    try:
+        # Get ticker-specific data if specified
+        if ticker and 'ticker' in cached_data.columns:
+            ticker_data = cached_data[cached_data['ticker'] == ticker].copy()
+            if ticker_data.empty:
+                return jsonify({'error': f'No data available for ticker: {ticker}'}), 404
+        else:
+            ticker_data = cached_data.copy()
+        
+        # Check if we have or can add EPS data
+        has_eps_data = False
+        
+        # If EPS data provided, add it to the dataset
+        if eps_data:
+            # Example format: {'TICKER1': {'EPS': 2.5, 'EPS Growth %': 15.2}, ...}
+            for ticker_name, eps_info in eps_data.items():
+                if ticker_name in ticker_data['ticker'].values:
+                    # Add EPS data to rows with this ticker
+                    ticker_mask = ticker_data['ticker'] == ticker_name
+                    
+                    if 'EPS' in eps_info:
+                        ticker_data.loc[ticker_mask, 'EPS'] = eps_info['EPS']
+                    
+                    if 'EPS Growth %' in eps_info:
+                        ticker_data.loc[ticker_mask, 'EPS Growth %'] = eps_info['EPS Growth %']
+            
+            has_eps_data = True
+        else:
+            # Check if we already have EPS data
+            has_eps_data = 'EPS' in ticker_data.columns and 'EPS Growth %' in ticker_data.columns
+        
+        if not has_eps_data:
+            return jsonify({
+                'error': 'EPS data not available. Please provide EPS data via the eps_data parameter.',
+                'required_format': {
+                    'ticker1': {'EPS': 2.5, 'EPS Growth %': 15.2},
+                    'ticker2': {'EPS': 3.1, 'EPS Growth %': 8.7}
+                }
+            }), 400
+        
+        # Calculate P/E and PEG ratios
+        peg_results = {}
+        
+        for ticker_name, ticker_group in ticker_data.groupby('ticker'):
+            # Skip if no EPS data for this ticker
+            if ticker_group['EPS'].isnull().all() or ticker_group['EPS Growth %'].isnull().all():
+                continue
+            
+            # Get latest price
+            latest_price = ticker_group['Price'].iloc[-1]
+            
+            # Get EPS and EPS Growth
+            eps = ticker_group['EPS'].iloc[-1]
+            eps_growth = ticker_group['EPS Growth %'].iloc[-1]
+            
+            # Calculate P/E ratio
+            pe_ratio = latest_price / eps if eps > 0 else None
+            
+            # Calculate PEG ratio
+            peg_ratio = pe_ratio / eps_growth if pe_ratio and eps_growth > 0 else None
+            
+            # Store results
+            peg_results[ticker_name] = {
+                'ticker': ticker_name,
+                'last_price': float(latest_price),
+                'eps': float(eps),
+                'eps_growth_pct': float(eps_growth),
+                'pe_ratio': float(pe_ratio) if pe_ratio else None,
+                'peg_ratio': float(peg_ratio) if peg_ratio else None
+            }
+            
+            # Add analysis
+            if peg_ratio:
+                if peg_ratio < 1:
+                    peg_results[ticker_name]['valuation'] = 'Undervalued'
+                    peg_results[ticker_name]['analysis'] = f"PEG ratio of {peg_ratio:.2f} suggests the stock is potentially undervalued relative to its growth rate"
+                elif peg_ratio < 1.5:
+                    peg_results[ticker_name]['valuation'] = 'Fair Value'
+                    peg_results[ticker_name]['analysis'] = f"PEG ratio of {peg_ratio:.2f} suggests the stock is reasonably valued relative to its growth rate"
+                else:
+                    peg_results[ticker_name]['valuation'] = 'Overvalued'
+                    peg_results[ticker_name]['analysis'] = f"PEG ratio of {peg_ratio:.2f} suggests the stock may be overvalued relative to its growth rate"
+        
+        if not peg_results:
+            return jsonify({'error': 'No valid PEG analysis results generated for any ticker'}), 500
+            
+        # Get valuation counts
+        valuation_counts = {}
+        for ticker, result in peg_results.items():
+            if 'valuation' in result:
+                valuation = result['valuation']
+                if valuation in valuation_counts:
+                    valuation_counts[valuation] += 1
+                else:
+                    valuation_counts[valuation] = 1
+        
+        return jsonify({
+            'success': True,
+            'message': 'PEG ratio analysis completed successfully',
+            'ticker_count': len(peg_results),
+            'valuation_summary': valuation_counts,
+            'results': peg_results
+        })
+    except Exception as e:
+        logger.error(f"Error performing PEG analysis: {str(e)}")
+        return jsonify({'error': f'Error during PEG analysis: {str(e)}'}), 500
 
 @app.route('/api/analyze-risk', methods=['POST'])
 def analyze_risk():
@@ -521,4 +1045,4 @@ def download_file(filename):
     return jsonify({'error': 'File not found'}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000) 
+    app.run(debug=True, host='0.0.0.0', port=5004) 

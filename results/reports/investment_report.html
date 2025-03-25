@@ -1,0 +1,230 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Investment Recommendation Report</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            header {
+                background-color: #2c3e50;
+                color: white;
+                padding: 20px;
+                text-align: center;
+                border-radius: 8px;
+                margin-bottom: 30px;
+            }
+            h1, h2, h3 {
+                color: #2c3e50;
+            }
+            h1 {
+                margin-bottom: 10px;
+            }
+            .date {
+                color: #7f8c8d;
+                font-style: italic;
+                margin-bottom: 20px;
+            }
+            .section {
+                margin-bottom: 40px;
+                background-color: #f9f9f9;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .chart-container {
+                text-align: center;
+                margin: 30px 0;
+            }
+            .chart-container img {
+                max-width: 100%;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            th, td {
+                padding: 12px 15px;
+                border-bottom: 1px solid #ddd;
+                text-align: left;
+            }
+            th {
+                background-color: #2c3e50;
+                color: white;
+            }
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+            tr:hover {
+                background-color: #e9e9e9;
+            }
+            .metrics-container {
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                margin: 20px 0;
+            }
+            .metric-box {
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                padding: 15px;
+                width: 48%;
+                margin-bottom: 20px;
+            }
+            .metric-value {
+                font-size: 24px;
+                font-weight: bold;
+                color: #2c3e50;
+            }
+            .status-success {
+                color: #27ae60;
+            }
+            .status-failed {
+                color: #c0392b;
+            }
+            .recommendation-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            .recommendation-box {
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                width: 48%;
+                margin-bottom: 20px;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 40px;
+                color: #7f8c8d;
+                font-size: 14px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Investment Recommendation System</h1>
+            <p>Comprehensive Analysis and Recommendations</p>
+        </header>
+        
+        <div class="date">
+            Generated on: 2025-03-25 07:20:22
+        </div>
+        
+        <div class="section">
+            <h2>Training Performance Overview</h2>
+            <div class="metrics-container">
+                <div class="metric-box">
+                    <h3>Stocks</h3>
+                    <p>Total: <span class="metric-value">12</span></p>
+                    <p>Successfully Trained: <span class="metric-value status-success">12</span></p>
+                    <p>Failed: <span class="metric-value status-failed">0</span></p>
+                    <p>Avg. Training Time: <span class="metric-value">5.63s</span></p>
+                </div>
+                <div class="metric-box">
+                    <h3>Mutual Funds</h3>
+                    <p>Total: <span class="metric-value">6</span></p>
+                    <p>Successfully Trained: <span class="metric-value status-success">4</span></p>
+                    <p>Failed: <span class="metric-value status-failed">1</span></p>
+                    <p>Avg. Training Time: <span class="metric-value">10.00s</span></p>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <img src="training_performance.png" alt="Training Performance">
+                <p>Figure 1: Training success and failure comparison between stocks and mutual funds</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Model Accuracy Analysis</h2>
+            
+            <div class="chart-container">
+                <img src="prediction_accuracy.png" alt="Prediction Accuracy">
+                <p>Figure 2: Prediction accuracy comparison (RMSE values) - lower is better</p>
+            </div>
+            
+            <div class="chart-container">
+                <img src="training_size_vs_accuracy.png" alt="Training Size vs Accuracy">
+                <p>Figure 3: Relationship between training data size and model accuracy</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Top Investment Recommendations</h2>
+            
+            <div class="recommendation-container">
+                <div class="recommendation-box">
+                    <h3>Top Performing Stocks</h3>
+                    <table>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Ticker</th>
+                            <th>RMSE</th>
+                            <th>Best Horizon</th>
+                        </tr>
+                        
+                    </table>
+                </div>
+                
+                <div class="recommendation-box">
+                    <h3>Top Performing Mutual Funds</h3>
+                    <table>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Fund</th>
+                            <th>RMSE</th>
+                            <th>Best Horizon</th>
+                        </tr>
+                        
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Training Details</h2>
+            
+            <h3>Stock Training Details</h3>
+            <table>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Data Points</th>
+                    <th>Status</th>
+                    <th>Training Time (s)</th>
+                </tr>
+                <tr><td>jsw</td><td>250</td><td class='status-success'>SUCCESS</td><td>6.31</td></tr><tr><td>titan</td><td>250</td><td class='status-success'>SUCCESS</td><td>5.17</td></tr><tr><td>ADNA</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.64</td></tr><tr><td>wipro</td><td>250</td><td class='status-success'>SUCCESS</td><td>10.25</td></tr><tr><td>ultratech</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.73</td></tr><tr><td>infosys</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.55</td></tr><tr><td>nestle</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.58</td></tr><tr><td>Apollo</td><td>250</td><td class='status-success'>SUCCESS</td><td>4.17</td></tr><tr><td>bajaj</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.98</td></tr><tr><td>asian</td><td>250</td><td class='status-success'>SUCCESS</td><td>13.47</td></tr><tr><td>icici</td><td>250</td><td class='status-success'>SUCCESS</td><td>6.07</td></tr><tr><td>ongc</td><td>250</td><td class='status-success'>SUCCESS</td><td>3.60</td></tr>
+            </table>
+            
+            <h3>Mutual Fund Training Details</h3>
+            <table>
+                <tr>
+                    <th>Fund Name</th>
+                    <th>Data Points</th>
+                    <th>Status</th>
+                    <th>Training Time (s)</th>
+                </tr>
+                <tr><td>icici</td><td>466</td><td class='status-success'>SUCCESS</td><td>7.77</td></tr><tr><td>Tata</td><td>N/A</td><td class='status-failed'>FAILED</td><td>N/A</td></tr><tr><td>sbi</td><td>929</td><td class='status-success'>SUCCESS</td><td>7.82</td></tr><tr><td>Birla</td><td>1371</td><td class='status-success'>SUCCESS</td><td>18.24</td></tr><tr><td>axis</td><td>300</td><td class='status-success'>SUCCESS</td><td>6.15</td></tr>
+            </table>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 Investment Recommendation System | Generated by AI Reporting Engine</p>
+        </div>
+    </body>
+    </html>
+    

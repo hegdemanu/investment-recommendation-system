@@ -1,0 +1,12 @@
+{
+  "ticker": "ADNA",
+  "best_horizon_days": 1,
+  "days_predicted": 30,
+  "start_date": "2025-01-01",
+  "end_date": "2025-01-31",
+  "start_price": 1046.4,
+  "end_price": 1347.7090781211855,
+  "expected_return_percent": 28.794827802101054,
+  "prediction_data": "./results/predictions/ADNA_predictions.csv",
+  "prediction_plot": "./results/predictions/ADNA_future_prediction.png"
+}

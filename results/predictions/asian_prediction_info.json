@@ -1,0 +1,12 @@
+{
+  "ticker": "asian",
+  "best_horizon_days": 3,
+  "days_predicted": 30,
+  "start_date": "2025-01-01",
+  "end_date": "2025-01-31",
+  "start_price": 2304.65,
+  "end_price": 2531.785278995335,
+  "expected_return_percent": 9.85552161913239,
+  "prediction_data": "./results/predictions/asian_predictions.csv",
+  "prediction_plot": "./results/predictions/asian_future_prediction.png"
+}

@@ -22,7 +22,7 @@ logger = logging.getLogger('DataProcessor')
 class DataProcessor:
     """
     Module for data loading, cleaning, and preprocessing.
-    Supports both CSV file uploads and API data fetching.
+    Supports both CSV/Excel file uploads and API data fetching.
     """
     
     def __init__(self):
@@ -66,17 +66,19 @@ class DataProcessor:
         
         return True
 
-    def load_and_combine_files(self, pattern, file_type='stock'):
+    def load_and_combine_files(self, pattern, ticker_column=None, default_ticker=None):
         """
-        Load multiple CSV files matching a pattern and combine them.
+        Load multiple CSV/Excel files matching a pattern and combine them.
         Handles missing files gracefully.
         
         Parameters:
         -----------
         pattern : str
-            Glob pattern to match files, e.g., './data/raw/stock_*.csv'
-        file_type : str
-            Type of file ('stock' or 'mf') to determine required columns
+            Glob pattern to match files, e.g., './data/raw/*.csv'
+        ticker_column : str, optional
+            Name of the column containing ticker symbols. If None, will try to infer from data
+        default_ticker : str, optional
+            Default ticker to use if one cannot be determined from the file
             
         Returns:
         --------
@@ -94,17 +96,10 @@ class DataProcessor:
         all_data = []
         for file_path in file_paths:
             try:
-                # Extract ticker from filename
-                ticker = os.path.basename(file_path).split('.')[0]
-                
                 # Load data
-                df = self.load_from_csv(file_path)
+                df = self.load_file(file_path, ticker_column, default_ticker)
                 
                 if df is not None and not df.empty:
-                    # Add ticker column if not present
-                    if 'ticker' not in df.columns:
-                        df['ticker'] = ticker
-                    
                     all_data.append(df)
             except Exception as e:
                 logger.error(f"Error processing file {file_path}: {str(e)}")
@@ -119,14 +114,18 @@ class DataProcessor:
         
         return combined_data
     
-    def load_from_csv(self, file_path):
+    def load_file(self, file_path, ticker_column=None, default_ticker=None):
         """
-        Load investment data from a CSV file with enhanced error handling.
+        Load investment data from a CSV or Excel file with enhanced error handling.
         
         Parameters:
         -----------
         file_path : str
-            Path to the CSV file containing stock/mutual fund data
+            Path to the file containing stock/mutual fund data
+        ticker_column : str, optional
+            Name of the column containing ticker symbols
+        default_ticker : str, optional
+            Default ticker to use if one cannot be determined from the file
             
         Returns:
         --------
@@ -140,32 +139,43 @@ class DataProcessor:
             return None
         
         try:
-            # Try different encodings if default fails
-            encodings = ['utf-8', 'latin1', 'ISO-8859-1']
+            # Determine file type from extension
+            file_extension = os.path.splitext(file_path)[1].lower()
             
-            for encoding in encodings:
-                try:
-                    # Determine the separator (comma, semicolon, tab)
-                    with open(file_path, 'r', encoding=encoding) as f:
-                        first_line = f.readline()
-                    
-                    if ',' in first_line:
-                        separator = ','
-                    elif ';' in first_line:
-                        separator = ';'
-                    elif '\t' in first_line:
-                        separator = '\t'
-                    else:
-                        separator = ','
-                    
-                    data = pd.read_csv(file_path, sep=separator, encoding=encoding)
-                    break
-                except UnicodeDecodeError:
-                    if encoding == encodings[-1]:
-                        raise
-                    continue
+            if file_extension in ['.xlsx', '.xls']:
+                # Excel file
+                data = pd.read_excel(file_path)
+                logger.info(f"Loaded Excel file with {len(data)} rows and {len(data.columns)} columns.")
+            else:
+                # CSV file (default) - Try different encodings if default fails
+                encodings = ['utf-8', 'latin1', 'ISO-8859-1']
+                
+                for encoding in encodings:
+                    try:
+                        # Determine the separator (comma, semicolon, tab)
+                        with open(file_path, 'r', encoding=encoding) as f:
+                            first_line = f.readline()
+                        
+                        if ',' in first_line:
+                            separator = ','
+                        elif ';' in first_line:
+                            separator = ';'
+                        elif '\t' in first_line:
+                            separator = '\t'
+                        else:
+                            separator = ','
+                        
+                        data = pd.read_csv(file_path, sep=separator, encoding=encoding)
+                        break
+                    except UnicodeDecodeError:
+                        if encoding == encodings[-1]:
+                            raise
+                        continue
+                
+                logger.info(f"Successfully loaded CSV file with {len(data)} rows and {len(data.columns)} columns.")
             
-            logger.info(f"Successfully loaded data with {len(data)} rows and {len(data.columns)} columns.")
+            # Handle ticker column
+            self._assign_ticker(data, file_path, ticker_column, default_ticker)
             
             # Clean and validate data
             data = self._clean_data(data)
@@ -173,8 +183,52 @@ class DataProcessor:
             self.data = data
             return data
         except Exception as e:
-            logger.error(f"Error loading CSV file: {str(e)}")
+            logger.error(f"Error loading file: {str(e)}")
             return None
+    
+    def _assign_ticker(self, data, file_path, ticker_column=None, default_ticker=None):
+        """
+        Assign ticker values to the dataframe based on available information.
+        
+        Parameters:
+        -----------
+        data : pd.DataFrame
+            The dataframe to modify
+        file_path : str
+            Path to the source file
+        ticker_column : str, optional
+            Name of column containing ticker data
+        default_ticker : str, optional
+            Default ticker to use if none can be determined
+        """
+        # If ticker column already exists and has values, nothing to do
+        if 'ticker' in data.columns and not data['ticker'].isna().all():
+            return
+        
+        # If specified ticker column exists, use it
+        if ticker_column and ticker_column in data.columns:
+            logger.info(f"Using {ticker_column} as ticker column")
+            data['ticker'] = data[ticker_column]
+            return
+        
+        # Try to find a column that might contain ticker information
+        possible_ticker_columns = ['ticker', 'symbol', 'stock', 'security', 'instrument']
+        for col in possible_ticker_columns:
+            if col in data.columns and not data[col].isna().all():
+                logger.info(f"Using column '{col}' as ticker source")
+                data['ticker'] = data[col]
+                return
+        
+        # If we couldn't find a ticker column, use the default or derive from filename
+        if default_ticker:
+            ticker = default_ticker
+        else:
+            # Try to extract from filename as last resort
+            file_name = os.path.basename(file_path)
+            ticker = os.path.splitext(file_name)[0]
+        
+        logger.info(f"Using '{ticker}' as default ticker for all rows")
+        data['ticker'] = ticker
     
     def _clean_data(self, data):
         """
@@ -268,12 +322,57 @@ class DataProcessor:
             except Exception as e:
                 logger.error(f"Error processing Date column: {str(e)}")
         
+        # Special handling for volume column with K, M, B suffixes
+        if 'Vol.' in data.columns:
+            try:
+                # Function to convert volume strings like "1.5M" to numeric values
+                def convert_volume(vol):
+                    if pd.isna(vol):
+                        return np.nan
+                    if isinstance(vol, (int, float)):
+                        return float(vol)
+                    
+                    vol = str(vol).replace(',', '')
+                    
+                    if 'K' in vol:
+                        return float(vol.replace('K', '')) * 1000
+                    elif 'M' in vol:
+                        return float(vol.replace('M', '')) * 1000000
+                    elif 'B' in vol:
+                        return float(vol.replace('B', '')) * 1000000000
+                    else:
+                        return float(vol)
+                
+                data['Vol.'] = data['Vol.'].apply(convert_volume)
+                logger.info("Processed volume column with K/M/B suffixes")
+            except Exception as e:
+                logger.error(f"Error processing volume column: {str(e)}")
+                # If conversion fails, set to NaN
+                data['Vol.'] = np.nan
+        
         # Handle numeric columns
-        numeric_cols = ['Price', 'Open', 'High', 'Low', 'Vol.', 'NAV']
+        numeric_cols = ['Price', 'Open', 'High', 'Low', 'NAV']
         for col in numeric_cols:
             if col in data.columns:
+                # Replace commas in numeric values
+                if data[col].dtype == object:
+                    data[col] = data[col].astype(str).str.replace(',', '')
                 # Convert to numeric, coerce errors to NaN
                 data[col] = pd.to_numeric(data[col], errors='coerce')
+        
+        # Handle percent columns
+        if 'Change %' in data.columns:
+            try:
+                if data['Change %'].dtype == object:
+                    # Remove % symbol and convert to numeric
+                    data['Change %'] = data['Change %'].astype(str).str.replace('%', '')
+                data['Change %'] = pd.to_numeric(data['Change %'], errors='coerce')
+            except Exception as e:
+                logger.error(f"Error processing Change % column: {str(e)}")
+                # If conversion fails, calculate from Price
+                if 'Price' in data.columns:
+                    logger.info("Calculating Change % from Price")
+                    data['Change %'] = data['Price'].pct_change() * 100
         
         # Calculate missing fields if possible
         if 'Price' in data.columns and 'Change %' not in data.columns:
@@ -304,13 +403,6 @@ class DataProcessor:
         if 'Vol.' in data.columns:
             # For volume, fill with median to avoid skewing
             data['Vol.'] = data['Vol.'].fillna(data['Vol.'].median())
-        
-        # Ensure ticker column exists
-        if 'ticker' not in data.columns:
-            file_name = os.path.basename(data.name) if hasattr(data, 'name') else 'unknown'
-            ticker = file_name.split('.')[0]
-            logger.info(f"Adding ticker column with value: {ticker}")
-            data['ticker'] = ticker
         
         # Drop any remaining rows with critical NaN values
         critical_cols = ['Date', 'Price'] if not is_mf else ['Date', 'NAV']

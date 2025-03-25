@@ -1,0 +1,12 @@
+{
+  "ticker": "titan",
+  "best_horizon_days": 1,
+  "days_predicted": 30,
+  "start_date": "2025-01-01",
+  "end_date": "2025-01-31",
+  "start_price": 3253.85,
+  "end_price": 3381.060679656267,
+  "expected_return_percent": 3.9095434533327422,
+  "prediction_data": "./results/predictions/titan_predictions.csv",
+  "prediction_plot": "./results/predictions/titan_future_prediction.png"
+}

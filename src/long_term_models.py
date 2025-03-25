@@ -7,6 +7,10 @@ import os
 import pandas as pd
 import numpy as np
 import pickle
+import tensorflow as tf
+import matplotlib
+# Set the backend to non-interactive 'Agg' to avoid GUI issues
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from statsmodels.tsa.arima.model import ARIMA

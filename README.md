@@ -1,194 +1,146 @@
 # Investment Recommendation System
 
-A comprehensive system that analyzes stocks and mutual funds to provide personalized investment recommendations using machine learning models.
+A comprehensive stock price prediction and investment recommendation system using LSTM (Long Short-Term Memory) neural networks and risk-based portfolio analysis.
 
 ## Features
 
-- **Data Analysis**
-  - Stock price analysis
-  - Mutual fund NAV analysis
-  - Technical indicators calculation
-  - Feature engineering
-
-- **Machine Learning Models**
-  - LSTM for short-term predictions
-  - ARIMA-GARCH for medium-term predictions
-  - Prophet for long-term forecasting
-
-- **Risk Analysis**
-  - Volatility calculation
-  - Sharpe ratio analysis
-  - Risk classification
-  - Portfolio risk assessment
-
-- **Portfolio Optimization**
-  - Modern Portfolio Theory implementation
-  - Risk-adjusted allocation
-  - Balanced portfolio strategy
-  - Asset allocation optimization
-
-- **Reporting and Visualization**
-  - Price predictions
-  - Risk profiles
-  - Portfolio recommendations
-  - Interactive visualizations
+- **LSTM Model Training**: Trains deep learning models to predict future stock prices using historical data
+- **Sliding Window Approach**: Uses a 6-month sliding window with 1-day steps for optimal prediction horizons
+- **Multiple Time Frame Analysis**: Provides short-term, medium-term, and long-term predictions
+- **Backtracking Analysis**: Evaluates model performance on historical data
+- **Risk-Based Recommendations**: Tailors investment suggestions based on risk appetite
+- **PEG Ratio Analysis**: Incorporates Price/Earnings to Growth ratio for fundamental analysis
+- **Comprehensive Reporting**: Generates detailed HTML reports with visualizations
 
 ## Repository Structure
 
 ```
 investment-recommendation-system/
-├── notebooks/
-│   └── Investment_Recommendation_System.ipynb
-├── data/
-│   ├── uploads/           # User uploaded CSV files
-│   ├── raw/              # Original data files
-│   └── processed/        # Processed data files
-├── models/
-│   ├── stock_models/     # Trained stock prediction models
-│   └── mf_models/        # Trained mutual fund models
-├── results/
-│   ├── stock_portfolio_allocation.csv
-│   ├── mf_portfolio_allocation.csv
-│   └── portfolio_summary.csv
-├── src/
-│   ├── data_processor.py
-│   ├── model_trainer.py
-│   ├── risk_analyzer.py
-│   ├── recommendation_engine.py
-│   └── report_generator.py
-├── static/
-│   └── css/
-├── templates/
-│   └── index.html
-├── app.py
-├── requirements.txt
-└── README.md
+├── data/                            # Data files
+│   ├── stocks/                      # Stock historical data (CSV files)
+│   ├── mutual_funds/                # Mutual fund data files
+│   ├── raw/                         # Original data files
+│   └── processed/                   # Processed data files
+├── models/                          # Trained LSTM models and metadata
+├── results/                         # Analysis outputs
+│   ├── predictions/                 # Price predictions and plots
+│   ├── analysis/                    # Investment recommendation reports
+│   └── validation/                  # Model validation metrics
+├── src/                             # Core code modules
+│   ├── model_trainer.py             # LSTM model training utilities
+│   ├── data_processor.py            # Data preprocessing utilities
+│   ├── risk_analyzer.py             # Risk assessment functions
+│   ├── recommendation_engine.py     # Investment recommendation logic
+│   └── report_generator.py          # Report generation utilities
+├── static/                          # Static web resources
+│   ├── css/                         # CSS stylesheets
+│   └── images/                      # Image files and plots
+├── templates/                       # Flask HTML templates
+├── docs/                            # Documentation
+│   └── SUMMARY.md                   # Project summary
+├── notebooks/                       # Jupyter notebooks
+├── app.py                           # Flask web application
+├── validate_model.py                # Script to validate model performance
+├── make_predictions.py              # Script to generate predictions
+├── generate_report.py               # Script to create investment reports
+├── run_investment_analysis.sh       # Full analysis pipeline script
+└── requirements.txt                 # Project dependencies
 ```
-
-## Prerequisites
-
-- Python 3.8+
-- Google Colab with GPU runtime
-- Required CSV files:
-  - 12 stock files (stock_1.csv to stock_12.csv)
-  - 6 mutual fund files (mf_1.csv to mf_6.csv)
-
-## Data Format Requirements
-
-### Stock CSV Files
-Required columns:
-- Date
-- Price
-- Open
-- High
-- Low
-- Volume
-- Change %
-
-### Mutual Fund CSV Files
-Required columns:
-- Date
-- NAV
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/hegdemanu/investment-recommendation-system
-
+git clone <repository-url>
 cd investment-recommendation-system
 ```
 
-2. Install required packages:
+2. Create and activate a conda environment:
+```bash
+conda create -n investment-env python=3.9
+conda activate investment-env
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
+## Quick Start
 
-### Using Google Colab Notebook
+Run the complete analysis pipeline with a single command:
 
-1. Upload the notebook to Google Colab
-2. Select GPU runtime
-3. Upload your CSV files
-4. Run cells in sequence
-5. Check results in the 'results' directory
-
-### Using Local Environment
-
-1. Set up your environment:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+./run_investment_analysis.sh
 ```
 
-2. Run the application:
+This will:
+1. Validate models with training/testing split
+2. Generate predictions for all stocks
+3. Create a comprehensive investment report
+
+## Running Individual Components
+
+- **Model Validation**:
+```bash
+python validate_model.py
+```
+
+- **Generate Predictions**:
+```bash
+python make_predictions.py
+```
+
+- **Create Investment Report**:
+```bash
+python generate_report.py
+```
+
+- **Start Web Application**:
 ```bash
 python app.py
 ```
 
-3. Access the web interface at `http://localhost:5000`
+## Web Application
+
+The system includes a Flask web application that provides a user-friendly interface to the investment recommendation system. The app offers the following API endpoints:
+
+- **Health Check**: `/api/health`
+- **Train Models**: `/api/train-models`
+- **Multi-timeframe Predictions**: `/api/multi-timeframe-predictions`
+- **Backtracking Analysis**: `/api/backtracking-analysis`
+- **Risk-based Recommendations**: `/api/risk-based-recommendations`
+- **PEG Analysis**: `/api/peg-analysis`
 
 ## Model Details
 
-### LSTM Model
-- Architecture: 2 LSTM layers with dropout
-- Features: Price, volume, technical indicators
-- Prediction horizon: Short-term (1-7 days)
+The system uses LSTM (Long Short-Term Memory) neural networks to predict stock prices. Key features:
 
-### ARIMA-GARCH Model
-- Purpose: Medium-term predictions
-- Features: Price volatility and trends
-- Prediction horizon: Medium-term (1-3 months)
+- **Input Features**: Price, Volume, Technical indicators (RSI, MACD, EMA, Bollinger Bands)
+- **Sequence Length**: Variable (optimized per stock)
+- **Prediction Horizons**: 1, 3, 5, 7, 14, 21, and 30 days
+- **Training Data**: Minimum 6 months of historical data
+- **Validation**: Train-test split (80/20) with sliding window evaluation
 
-### Prophet Model
-- Purpose: Long-term forecasting
-- Features: Seasonal patterns and trends
-- Prediction horizon: Long-term (3-12 months)
+## Risk Profiles
+
+The system provides recommendations for three investor profiles:
+
+1. **Conservative**: Focus on stable returns with lower volatility
+2. **Moderate**: Balance between risk and return
+3. **Aggressive**: Higher potential returns with higher volatility
 
 ## Results
 
 The system generates the following outputs:
 
-1. **Portfolio Allocation**
-   - Stock weights
-   - Mutual fund weights
-   - Risk-adjusted allocation
+1. **Model Validation**: Performance metrics for each trained model
+2. **Stock Predictions**: 30-day price forecasts with expected return calculations
+3. **Risk Analysis**: Volatility and risk-adjusted return metrics
+4. **Investment Recommendations**: Tailored stock suggestions for different risk profiles
+5. **HTML Report**: Comprehensive visualization and analysis
 
-2. **Risk Analysis**
-   - Volatility metrics
-   - Sharpe ratios
-   - Risk classifications
+## Disclaimer
 
-3. **Predictions**
-   - Price forecasts
-   - NAV predictions
-   - Trend analysis
-
-4. **Visualizations**
-   - Portfolio allocation charts
-   - Risk-return plots
-   - Price prediction graphs
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-
-## Acknowledgments
-
-- TensorFlow and Keras for deep learning models
-- Prophet for time series forecasting
-- Pandas and NumPy for data processing
-- Matplotlib and Plotly for visualizations
-
-## Contact
-
-B G Manu- f20212393@goa.bits-pilani.ac.in
-Project Link: https://github.com/hegdemanu/investment-recommendation-system/
+This system is for educational and research purposes only. It does not constitute financial advice, and past performance is not indicative of future results. Always conduct your own research before making investment decisions.
 

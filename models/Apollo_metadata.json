@@ -1,0 +1,28 @@
+{
+  "ticker": "Apollo",
+  "training_date": "2025-03-25 06:50:19",
+  "features": [
+    "Price",
+    "Open",
+    "High",
+    "Low",
+    "Vol.",
+    "Change %"
+  ],
+  "sequence_length": 60,
+  "epochs": 15,
+  "final_train_loss": 0.020228764042258263,
+  "final_val_loss": 0.019351370632648468,
+  "training_samples": 128,
+  "validation_samples": 32,
+  "prediction_horizons": [
+    1,
+    3,
+    7,
+    14,
+    21,
+    30
+  ],
+  "best_horizon": 7,
+  "best_horizon_rmse": 0.08766986435610241
+}
