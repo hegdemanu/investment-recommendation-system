@@ -54,7 +54,7 @@ Check out our [demo video](./docs/videos/investment-system-demo.mp4) to see the 
 
 ## 🖥️ Screenshots
 
-### Compound Calculator
+### Stock explorer
 ![Compound Calculator](./docs/compound-calculator.png)
 *Interactive compound interest calculator with visualization*
 
