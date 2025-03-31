@@ -2,11 +2,11 @@
 
 A comprehensive, full-stack investment recommendation system that leverages AI to provide data-driven investment insights. Built with modern technologies and best practices in software development.
 
-![Investment Dashboard](./docs/landing.png)
+![Investment Dashboard](./docs/images/landing.png)
 
 ## 🎥 Demo
 
-Check out our [demo video](./docs/videos/investment-system-demo.mp4) to see the system in action, featuring:
+Check out our [demo video](./docs/videos/demo.mp4) to see the system in action, featuring:
 - Interactive Compound Calculator
 - Real-time Market Sentiment Analysis
 - AI-Powered Report Generation
@@ -55,19 +55,19 @@ Check out our [demo video](./docs/videos/investment-system-demo.mp4) to see the 
 ## 🖥️ Screenshots
 
 ### Compound Calculator
-![Compound Calculator](./docs/compound-calculator.png)
+![Compound Calculator](./docs/images/compound-calculator.png)
 *Interactive compound interest calculator with visualization*
 
 ### Market Sentiment Analysis
-![Market Sentiment](./docs/sentiment-analysis.png)
+![Market Sentiment](./docs/images/sentiment-analysis.png)
 *Real-time market sentiment analysis dashboard*
 
 ### Report Generator
-![Report Generator](./docs/report-generator.png)
+![Report Generator](./docs/images/report-generator.png)
 *AI-powered investment report generation*
 
 ### AI Research Dashboard
-![AI Research](./docs/ai-research.png)
+![AI Research](./docs/images/ai-research.png)
 *RAG-based investment research assistant*
 
 ## 🚀 Getting Started
