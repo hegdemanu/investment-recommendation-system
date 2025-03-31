@@ -206,42 +206,60 @@ investment-recommendation-system/
 - Mobile app development
 - Advanced ML model integration
 
-## 📸 Project Gallery
+## 📸 Complete Screenshot Gallery
 
-### Dashboard Views
-![Dashboard Overview](./docs/images/dashboard-overview.png)
-*Complete dashboard with performance metrics and portfolio allocation*
+### Main Features
+![Compound Calculator](./docs/compound-calculator.png)
+*Interactive compound interest calculator with visualization*
 
-![Stock Analysis](./docs/images/stock-analysis.png)
-*Detailed stock analysis with technical indicators and price predictions*
+![Sentiment Analysis](./docs/sentiment-analysis.png)
+*Real-time market sentiment analysis dashboard*
 
-### ML Model Visualizations
-![Prediction Models](./docs/images/prediction-models.png)
-*Visualization of model predictions against actual market performance*
+![Report Generator](./docs/report-generator.png)
+*AI-powered investment report generation*
 
-![Feature Importance](./docs/images/feature-importance.png)
-*Feature importance visualization for explainable AI decisions*
+![RAG Research](./docs/ai-research.png)
+*RAG-based investment research assistant*
 
-### User Interface Components
-![Portfolio Management](./docs/images/portfolio-management.png)
-*Portfolio management interface with drag-and-drop allocation*
+### Interface Components
+![Landing Page](./docs/landing.png)
+*Main landing page showcasing key application features*
 
-![Alert Configuration](./docs/images/alert-configuration.png)
-*Custom alert configuration system for market events*
+![Dashboard Preview](./docs/images/dashboard_preview.png)
+*Comprehensive dashboard view for monitoring investments*
 
-### Mobile Views
-![Mobile Dashboard](./docs/images/mobile-dashboard.png)
-*Responsive mobile dashboard for on-the-go investment monitoring*
+### Additional Screenshots
+![Dashboard View 1](./docs/images/Screenshot_2025-03-26_at_4.51.25_AM.png)
+*Portfolio performance tracking with interactive charts*
 
-![Mobile Trading](./docs/images/mobile-trading.png)
-*Mobile-optimized trading interface with one-tap actions*
+![Dashboard View 2](./docs/images/Screenshot_2025-03-26_at_4.51.32_AM.png)
+*Stock comparison tool with technical indicators*
 
-### Reports and Analytics
-![Performance Report](./docs/images/performance-report.png)
-*Detailed performance reports with risk-adjusted metrics*
+![Dashboard View 3](./docs/images/Screenshot_2025-03-26_at_4.51.43_AM.png)
+*Risk analysis view with volatility metrics*
 
-![Market Analysis](./docs/images/market-analysis.png)
-*Comprehensive market analysis with sector performance visualization*
+![Dashboard View 4](./docs/images/Screenshot_2025-03-26_at_4.51.53_AM.png)
+*Market sentiment trends across different sectors*
+
+![Dashboard View 5](./docs/images/Screenshot_2025-03-26_at_4.52.01_AM.png)
+*Historical performance analytics with custom date ranges*
+
+![Dashboard View 6](./docs/images/Screenshot_2025-03-26_at_4.52.09_AM.png)
+*Portfolio allocation visualization with asset breakdown*
+
+![Dashboard View 7](./docs/images/Screenshot_2025-03-26_at_4.52.17_AM.png)
+*Customizable watchlist with real-time updates*
+
+![Dashboard View 8](./docs/images/Screenshot_2025-03-26_at_4.52.26_AM.png)
+*Technical analysis tools with pattern recognition*
+
+![Dashboard View 9](./docs/images/Screenshot_2025-03-26_at_4.52.45_AM.png)
+*News sentiment integration with market impact scoring*
+
+![Dashboard View 10](./docs/images/Screenshot_2025-03-26_at_4.52.55_AM.png)
+*Recommendation engine with personalized investment insights*
+
+> **Note:** These screenshots showcase the current state of the application. Additional screenshots are being continuously added as new features are developed. Check back regularly for updates.
 
 ## 🤝 Contributing
 
