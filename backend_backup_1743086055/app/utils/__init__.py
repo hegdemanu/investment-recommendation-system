@@ -1,3 +1,0 @@
-"""
-Utility module package initialization
-""" 

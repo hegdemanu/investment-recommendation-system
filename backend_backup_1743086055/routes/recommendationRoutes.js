@@ -1,1 +1,0 @@
-const express = require("express"); const router = express.Router(); const auth = require("../middleware/auth"); const getRecommendations = async (req, res) => { try { res.json([]); } catch (err) { res.status(500).json({ message: "Server error" }); } }; router.get("/", auth, getRecommendations); module.exports = router;
