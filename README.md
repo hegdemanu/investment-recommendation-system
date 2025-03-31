@@ -206,6 +206,43 @@ investment-recommendation-system/
 - Mobile app development
 - Advanced ML model integration
 
+## 📸 Project Gallery
+
+### Dashboard Views
+![Dashboard Overview](./docs/images/dashboard-overview.png)
+*Complete dashboard with performance metrics and portfolio allocation*
+
+![Stock Analysis](./docs/images/stock-analysis.png)
+*Detailed stock analysis with technical indicators and price predictions*
+
+### ML Model Visualizations
+![Prediction Models](./docs/images/prediction-models.png)
+*Visualization of model predictions against actual market performance*
+
+![Feature Importance](./docs/images/feature-importance.png)
+*Feature importance visualization for explainable AI decisions*
+
+### User Interface Components
+![Portfolio Management](./docs/images/portfolio-management.png)
+*Portfolio management interface with drag-and-drop allocation*
+
+![Alert Configuration](./docs/images/alert-configuration.png)
+*Custom alert configuration system for market events*
+
+### Mobile Views
+![Mobile Dashboard](./docs/images/mobile-dashboard.png)
+*Responsive mobile dashboard for on-the-go investment monitoring*
+
+![Mobile Trading](./docs/images/mobile-trading.png)
+*Mobile-optimized trading interface with one-tap actions*
+
+### Reports and Analytics
+![Performance Report](./docs/images/performance-report.png)
+*Detailed performance reports with risk-adjusted metrics*
+
+![Market Analysis](./docs/images/market-analysis.png)
+*Comprehensive market analysis with sector performance visualization*
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
