@@ -74,8 +74,6 @@ data/processed/
 !tsconfig.json
 
 # Documentation images and videos (to be added manually)
-!docs/images/
-!docs/videos/
 
 # Virtual Environment
 venv/
@@ -142,4 +140,3 @@ backend/api-gateway/.env
 apps/admin/.env
 
 # Large files
-*.mov
