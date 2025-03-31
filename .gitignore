@@ -1,42 +1,145 @@
-# Python bytecode
-__pycache__/
-*.py[cod]
-*$py.class
+# Dependencies
+node_modules
+.pnp
+.pnp.js
 
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
+# Testing
+coverage
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-.conda/
+# Next.js
+.next/
+out/
+build
+dist
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints
-
-# macOS
+# Misc
 .DS_Store
+*.pem
 
-# Logs
-*.log
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Cache files
-.cache/
+# Local env files
+.env*.local
 
-# IDE specific files
-.idea/
-.vscode/
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.idea
+.vscode
 *.swp
 *.swo
 
-# Model files
-*.pt
-*.pth
+# Build outputs
+dist/
+build/
+*.log
 
-# Temporary files
-tmp/
+# Cache
+.turbo
+.cache
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env/
+.venv/
+ENV/
+
+# ML models
+*.h5
+*.pkl
+*.model
+*.pt
+
+# Data
+data/raw/
+data/processed/
+*.csv
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+
+# Documentation images and videos (to be added manually)
+!docs/images/
+!docs/videos/
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.env
+
+# Anaconda
+.conda/
+conda-env/
+*.conda
+
+# Project specific
+data/
+models/
+logs/
+results/
+*.log
+*.csv
+*.json
+!config/*.json
+!tests/data/*.json
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+node_modules
+backend/api-gateway/.env
+apps/admin/.env
+
+# Large files
+*.mov

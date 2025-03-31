@@ -1,0 +1,33 @@
+# API (Improved stability & performance)
+fastapi>=0.104.0,<0.110.0
+uvicorn[standard]>=0.24.0,<0.26.0
+python-multipart>=0.0.6
+email-validator>=2.1.0
+
+# Auth (Security updates)
+python-jose[cryptography]>=3.3.0,<4.0.0
+passlib[bcrypt]>=1.7.4,<1.8.0
+
+# Database (Performance & compatibility)
+SQLAlchemy>=2.0.25,<2.1.0
+alembic>=1.13.0,<1.14.0
+psycopg2-binary>=2.9.9
+greenlet>=3.0.3,<3.1.0
+
+# ML/AI (Updated versions with performance optimizations)
+numpy>=1.26.2
+pandas>=2.2.0
+scikit-learn>=1.4.0
+tensorflow-macos>=2.16.1  # For MacOS
+torch>=2.1.1
+transformers>=4.38.2
+
+# Utils
+python-dotenv>=1.0.0
+requests>=2.31.0,<2.32.0
+Jinja2>=3.1.3,<3.2.0
+aiofiles>=23.2.1,<24.0.0
+
+# Additional dependencies
+pydantic-settings>=2.0.0  # For settings management
+python-jose[cryptography]>=3.3.0  # For JWT tokens
