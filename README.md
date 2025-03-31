@@ -30,6 +30,42 @@ Check out our [demo video](investment-system-demo.mp4) to see the system in acti
 - 🔍 Advanced Search Capabilities
 - 📊 Data Analytics Pipeline
 
+## 🧠 ML Models Architecture
+
+Our investment recommendation system leverages state-of-the-art machine learning models to deliver accurate predictions and insights:
+
+### 🔮 Time-Series Prediction Models
+- **LSTM Networks**: Long Short-Term Memory networks that capture long-term dependencies in market data
+- **Bidirectional GRU**: Bidirectional Gated Recurrent Units for enhanced pattern recognition
+- **Hybrid CNN-LSTM Models**: Combining convolutional layers for feature extraction with LSTM layers for sequence prediction
+- **Multi-Horizon Forecast Models**: Specialized models for short-term (1-7 days), medium-term (1-4 weeks), and long-term (1-12 months) predictions
+
+### 📊 Feature Engineering Pipeline
+- **Technical Indicators**: Automated extraction of 50+ technical indicators (RSI, MACD, Bollinger Bands, etc.)
+- **Market Sentiment Features**: Integration of news sentiment, social media metrics, and market mood indicators
+- **Macroeconomic Factors**: Incorporation of interest rates, inflation metrics, sector performance, and global market indices
+- **Volatility Estimators**: Custom volatility measures using GARCH models and implied volatility from options markets
+
+### 🔍 Model Training and Evaluation
+- **Bayesian Hyperparameter Optimization**: Automated hyperparameter tuning using Bayesian optimization
+- **Multi-Metric Evaluation**: Models evaluated on RMSE, MAE, MAPE, Sharpe ratio, and custom directional accuracy metrics
+- **Ensemble Methods**: Stacking and blending multiple models for improved prediction accuracy
+- **Backtesting Framework**: Rigorous historical backtesting against multiple market regimes
+- **Continuous Learning**: Models automatically retrain on new data to adapt to changing market conditions
+
+### 💹 Risk Assessment Models
+- **VaR Estimators**: Value-at-Risk models using historical simulation, parametric, and Monte Carlo methods
+- **Portfolio Optimization**: Efficient frontier calculation using Modern Portfolio Theory
+- **Stress Testing**: Scenario analysis for market crashes, interest rate spikes, and sector-specific shocks
+- **Risk-Adjusted Return Prediction**: Models that specifically target risk-adjusted returns like Sharpe and Sortino ratios
+
+### 🧩 Significance of Our ML Approach
+- **Multi-resolution Analysis**: Separate models for different investment horizons, enabling both tactical and strategic decisions
+- **Explainable AI**: Feature importance analysis and partial dependence plots to understand model decisions
+- **Uncertainty Quantification**: Confidence intervals and prediction distributions rather than point estimates
+- **Regime Detection**: Automatic identification of bullish, bearish, and sideways market conditions
+- **Asset-Specific Optimization**: Models fine-tuned for different asset classes (equities, fixed income, commodities)
+
 ## 🛠️ Tech Stack
 
 ### Frontend
@@ -47,10 +83,14 @@ Check out our [demo video](investment-system-demo.mp4) to see the system in acti
 - **Caching:** Redis
 
 ### AI/ML Components
-- **NLP:** TensorFlow.js
-- **Market Analysis:** Python, Scikit-learn
-- **Data Processing:** Pandas, NumPy
-- **Model Deployment:** TensorFlow Serving
+- **NLP:** TensorFlow.js, Transformers, BERT
+- **Market Analysis:** Python, Scikit-learn, PyTorch
+- **Data Processing:** Pandas, NumPy, Dask for large-scale processing
+- **Model Deployment:** TensorFlow Serving, ONNX Runtime
+- **Feature Store:** Feast for feature management and serving
+- **Model Monitoring:** MLflow for tracking experiments and model versioning
+- **Distributed Training:** Horovod for multi-GPU training of large models
+- **AutoML:** Auto-Keras and TPOT for automated architecture search
 
 ## 🖥️ Screenshots
 
