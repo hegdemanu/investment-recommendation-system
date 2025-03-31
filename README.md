@@ -225,40 +225,6 @@ investment-recommendation-system/
 ![Landing Page](./docs/landing.png)
 *Main landing page showcasing key application features*
 
-![Dashboard Preview](./docs/images/dashboard_preview.png)
-*Comprehensive dashboard view for monitoring investments*
-
-### Additional Screenshots
-![Dashboard View 1](./docs/images/Screenshot_2025-03-26_at_4.51.25_AM.png)
-*Portfolio performance tracking with interactive charts*
-
-![Dashboard View 2](./docs/images/Screenshot_2025-03-26_at_4.51.32_AM.png)
-*Stock comparison tool with technical indicators*
-
-![Dashboard View 3](./docs/images/Screenshot_2025-03-26_at_4.51.43_AM.png)
-*Risk analysis view with volatility metrics*
-
-![Dashboard View 4](./docs/images/Screenshot_2025-03-26_at_4.51.53_AM.png)
-*Market sentiment trends across different sectors*
-
-![Dashboard View 5](./docs/images/Screenshot_2025-03-26_at_4.52.01_AM.png)
-*Historical performance analytics with custom date ranges*
-
-![Dashboard View 6](./docs/images/Screenshot_2025-03-26_at_4.52.09_AM.png)
-*Portfolio allocation visualization with asset breakdown*
-
-![Dashboard View 7](./docs/images/Screenshot_2025-03-26_at_4.52.17_AM.png)
-*Customizable watchlist with real-time updates*
-
-![Dashboard View 8](./docs/images/Screenshot_2025-03-26_at_4.52.26_AM.png)
-*Technical analysis tools with pattern recognition*
-
-![Dashboard View 9](./docs/images/Screenshot_2025-03-26_at_4.52.45_AM.png)
-*News sentiment integration with market impact scoring*
-
-![Dashboard View 10](./docs/images/Screenshot_2025-03-26_at_4.52.55_AM.png)
-*Recommendation engine with personalized investment insights*
-
 > **Note:** These screenshots showcase the current state of the application. Additional screenshots are being continuously added as new features are developed. Check back regularly for updates.
 
 ## 🤝 Contributing
