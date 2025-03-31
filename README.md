@@ -1,244 +1,182 @@
-# Investment Recommendation System
+# InvestSage AI - Investment Recommendation System
 
-A comprehensive system for analyzing stock and mutual fund performance, training prediction models, and generating investment recommendations with interactive dashboards.
+A comprehensive, full-stack investment recommendation system that leverages AI to provide data-driven investment insights. Built with modern technologies and best practices in software development.
 
-## How to Run the Application
+![Investment Dashboard](./docs/images/landing.png)
 
-### Quick Start
+## 🎥 Demo
 
-```bash
-# Run the dashboard
-python run_investment_system.py dashboard
+Check out our [demo video](./docs/videos/demo.mp4) to see the system in action, featuring:
+- Interactive Compound Calculator
+- Real-time Market Sentiment Analysis
+- AI-Powered Report Generation
+- RAG-based Investment Research
 
-# Run full analysis (training, predictions, reports)
-python run_investment_system.py full-analysis
-```
+## 🚀 Key Features
 
-Alternatively, use the platform-independent launcher:
-```bash
-# On macOS/Linux
-./launch.py
+### Frontend
+- 📊 Interactive Compound Interest Calculator
+- 📈 Real-time Market Sentiment Analysis
+- 📑 AI-Powered Report Generation
+- 🤖 RAG-based Investment Research Assistant
+- 🌓 Dark/Light Mode Support
+- 📱 Fully Responsive Design
 
-# On Windows
-python launch.py
-```
+### Backend
+- 🔄 Real-time Market Data Integration
+- 🧠 Machine Learning Models for Market Analysis
+- 🔒 Secure API Architecture
+- 📦 Efficient Data Caching
+- 🔍 Advanced Search Capabilities
+- 📊 Data Analytics Pipeline
 
-## System Components
+## 🛠️ Tech Stack
 
-The Investment Recommendation System includes the following components:
+### Frontend
+- **Framework:** Next.js 14 with TypeScript
+- **Styling:** Tailwind CSS, Shadcn UI
+- **State Management:** React Hooks
+- **Data Visualization:** Chart.js
+- **API Integration:** Axios, SWR
 
-1. **Data Collection**: Historical stock and mutual fund data acquisition
-2. **Model Training**: LSTM, GRU, and Ensemble models for price forecasting
-3. **Performance Analysis**: Evaluation of model accuracy and training efficiency
-4. **Dashboard Generation**: Interactive HTML dashboard with visualizations
-5. **Investment Recommendations**: Data-driven suggestions for optimal investments based on risk profile
+### Backend
+- **Server:** Node.js, Express.js
+- **Database:** PostgreSQL with TypeORM
+- **Authentication:** JWT, OAuth2
+- **API Documentation:** Swagger/OpenAPI
+- **Caching:** Redis
 
-## System Requirements
+### AI/ML Components
+- **NLP:** TensorFlow.js
+- **Market Analysis:** Python, Scikit-learn
+- **Data Processing:** Pandas, NumPy
+- **Model Deployment:** TensorFlow Serving
 
-- Python 3.8 or higher
-- Required Python packages (listed in requirements.txt):
-  - pandas
-  - numpy
-  - matplotlib
-  - seaborn
-  - tensorflow (for deep learning models)
-  - flask (for web interface)
+## 🖥️ Screenshots
 
-## Features
+### Compound Calculator
+![Compound Calculator](./docs/images/compound-calculator.png)
+*Interactive compound interest calculator with visualization*
 
-- **Multi-Model Prediction**: Trains LSTM, GRU, and Ensemble models to predict future stock prices using historical data
-- **Time Horizon Optimization**: Uses LSTM for short-term, GRU for medium-term, and Ensemble models for long-term predictions
-- **Sliding Window Approach**: Uses a 6-month sliding window with 1-day steps for optimal prediction horizons
-- **Multiple Time Frame Analysis**: Provides short-term, medium-term, and long-term predictions
-- **Backtracking Analysis**: Evaluates model performance on historical data
-- **Risk-Based Recommendations**: Tailors investment suggestions based on risk appetite
-- **PEG Ratio Analysis**: Incorporates Price/Earnings to Growth ratio for fundamental analysis
-- **Interactive Dashboard**: Generates detailed interactive dashboard with visualizations
+### Market Sentiment Analysis
+![Market Sentiment](./docs/images/sentiment-analysis.png)
+*Real-time market sentiment analysis dashboard*
 
-## Repository Structure
+### Report Generator
+![Report Generator](./docs/images/report-generator.png)
+*AI-powered investment report generation*
 
-```
-investment-recommendation-system/
-├── app/                            # Main application code
-│   ├── core/                       # Core business logic
-│   │   ├── model_trainer.py        # Model training utilities for LSTM, GRU, and Ensemble models
-│   │   ├── data_processor.py       # Data preprocessing utilities
-│   │   ├── risk_analyzer.py        # Risk assessment functions
-│   │   └── recommendation_engine.py # Investment recommendation logic
-│   ├── dashboard/                  # Dashboard generation
-│   │   ├── dashboard_generator.py  # Dashboard HTML generation
-│   │   └── dashboard_template.py   # HTML template for dashboard
-│   ├── api/                        # API endpoints for web interface
-│   ├── utils/                      # Utility functions
-│   │   ├── file_utils.py           # File operations utilities
-│   │   └── data_utils.py           # Data processing utilities
-├── config/                         # Configuration files
-│   └── settings.py                 # Central configuration settings
-├── data/                           # Data files
-│   ├── stocks/                     # Stock historical data (CSV files)
-│   ├── mutual_funds/               # Mutual fund data files
-│   ├── uploads/                    # User-uploaded data files
-├── models/                         # Trained prediction models and metadata
-├── results/                        # Analysis outputs
-│   ├── predictions/                # Price predictions and plots
-│   ├── reports/                    # Generated reports
-│   ├── dashboard/                  # Dashboard HTML files
-│   │   └── json/                   # JSON files for dashboard
-│   ├── training/                   # Training metrics and summaries
-│   └── validation/                 # Model validation metrics
-├── docs/                           # Documentation
-├── logs/                           # Log files
-├── run_investment_system.py        # Unified command-line interface
-├── launch.py                       # Platform-independent launcher
-├── CHANGELOG.md                    # Version history and changes
-├── archive/                        # Legacy code and deprecated scripts
-└── requirements.txt                # Project dependencies
-```
+### AI Research Dashboard
+![AI Research](./docs/images/ai-research.png)
+*RAG-based investment research assistant*
 
-## Installation
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- PostgreSQL 14+
+- Python 3.8+ (for ML models)
+
+### Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/hegdemanu/investment-recommendation-system
+git clone https://github.com/yourusername/investment-recommendation-system.git
+cd investment-recommendation-system
 ```
 
-2. Create and activate a conda environment:
+2. Install dependencies:
 ```bash
-conda create -n investment-env python=3.9
-conda activate investment-env
+# Frontend
+cd frontend-new
+npm install
+
+# Backend
+cd ../backend
+npm install
 ```
 
-3. Install dependencies:
+3. Set up environment variables:
 ```bash
-pip install -r requirements.txt
+# Frontend (.env.local)
+NEXT_PUBLIC_API_URL=http://localhost:3001
+
+# Backend (.env)
+DATABASE_URL=postgresql://user:password@localhost:5432/investsage
+JWT_SECRET=your_jwt_secret
 ```
 
-## Running Individual Components
-
-The system uses a unified command-line interface through `run_investment_system.py`:
-
-- **Model Validation**:
+4. Start the development servers:
 ```bash
-python run_investment_system.py validate
+# Frontend (http://localhost:3000)
+npm run dev
+
+# Backend (http://localhost:3001)
+npm run dev
 ```
 
-- **Generate Predictions**:
-```bash
-python run_investment_system.py predict
+## 📁 Project Structure
+
+```
+investment-recommendation-system/
+├── frontend-new/           # Next.js frontend
+│   ├── src/
+│   │   ├── app/           # Pages and layouts
+│   │   ├── components/    # React components
+│   │   └── lib/          # Utilities and hooks
+├── backend/               # Node.js backend
+│   ├── src/
+│   │   ├── controllers/  # Route controllers
+│   │   ├── models/      # Database models
+│   │   └── services/    # Business logic
+├── ml/                   # Machine learning models
+│   ├── sentiment/       # Market sentiment analysis
+│   └── prediction/      # Price prediction models
+└── docs/                # Documentation
+    ├── images/         # Screenshots
+    └── videos/         # Demo videos
 ```
 
-- **Create Dashboard**:
-```bash
-python run_investment_system.py dashboard
-```
+## 🔑 Key Implementation Details
 
-- **Generate Sample Data** (for demonstration):
-```bash
-python run_investment_system.py sample
-```
+### Frontend
+- Implemented responsive UI with Tailwind CSS and Shadcn UI
+- Real-time data updates using SWR
+- Client-side form validation
+- Optimized performance with Next.js 14 features
 
-- **Start Web Application**:
-```bash
-python run_investment_system.py webapp
-```
+### Backend
+- RESTful API design
+- Database optimization with TypeORM
+- Caching layer for improved performance
+- Comprehensive error handling
+- Unit and integration tests
 
-## Dashboard Features
+### AI/ML
+- Sentiment analysis using TensorFlow.js
+- Market trend prediction models
+- RAG implementation for research queries
+- Data preprocessing pipeline
 
-The interactive dashboard provides:
+## 📈 Future Enhancements
 
-- **Portfolio Diversification View**: Visual breakdown of investments by sector
-- **Model Performance Metrics**: Accuracy, RMSE, and other training metrics
-- **Prediction Visualizations**: Graphical representations of price forecasts
-- **Risk Analysis**: Risk assessment based on portfolio composition
-- **Recommendation Engine**: Investment suggestions based on model predictions
-- **JSON Report Viewer**: Interactive viewer for detailed JSON reports
-- **Data Browser**: Access to raw and processed data files
+- Portfolio optimization algorithms
+- Real-time market alerts
+- Social trading features
+- Mobile app development
+- Advanced ML model integration
 
-## Dashboard Preview
-
-![Dashboard Overview](docs/images/dashboard_preview.png)
-
-The investment recommendation system generates an interactive dashboard with:
-
-- **Price Predictions**: Visual display of model predictions across different time horizons
-- **Portfolio Allocation**: Interactive pie charts for sector-based diversification
-- **Performance Metrics**: Accuracy visualization and comparison between models
-- **JSON Viewer**: Built-in viewer for examining detailed model metadata and results
-- **Responsive Design**: Adapts to different screen sizes with mobile-friendly controls
-
-To generate and view the dashboard:
-```bash
-# Generate the dashboard
-python run_investment_system.py dashboard
-
-# Manually open in browser if it doesn't open automatically
-open results/dashboard/investment_dashboard.html  # On macOS
-# or simply navigate to this file in your file explorer and double-click
-```
-
-## Dashboard Gallery
-
-### Portfolio Allocation & Sector Diversification
-![Portfolio Allocation](docs/images/renamed/portfolio_allocation.png)
-
-### Performance Metrics & Training Results
-![Performance Metrics](docs/images/renamed/performance_metrics.png)
-
-### Stock Price Predictions
-![Stock Predictions](docs/images/renamed/stock_predictions.png)
-
-### Dashboard Overview
-![Dashboard Overview](docs/images/renamed/dashboard_overview.png)
-
-### Mobile Responsive View
-![Mobile View](docs/images/renamed/mobile_view.png)
-
-### JSON Data Viewer
-![JSON Viewer](docs/images/renamed/json_viewer.png)
-
-### Risk Analysis & Recommendations
-![Risk Analysis](docs/images/renamed/risk_analysis.png)
-
-### Training Metrics Visualization
-![Training Metrics](docs/images/renamed/training_metrics.png)
-
-### Time Horizon Comparison
-![Time Horizon Comparison](docs/images/renamed/time_horizon.png)
-
-### Portfolio Diversification Details
-![Diversification Details](docs/images/renamed/diversification.png)
-
-### Model Comparison & Accuracy
-![Model Comparison](docs/images/renamed/model_comparison.png)
-
-### Data File Browser
-![Data Browser](docs/images/renamed/data_browser.png)
-
-## Model Details
-
-The system uses three complementary models for price prediction:
-
-1. **LSTM (Long Short-Term Memory)**: Primary model for short-term predictions
-   - Best for: 1-7 day horizons
-   - Features: Price, Volume, Technical indicators (RSI, MACD, EMA, Bollinger Bands)
-
-2. **GRU (Gated Recurrent Unit)**: Optimized for medium-term predictions
-   - Best for: 7-14 day horizons
-   - More efficient training time than LSTM
-   - Better handling of irregular patterns
-
-3. **Ensemble Model**: Weighted combination for long-term predictions
-   - Best for: 14-30 day horizons
-   - Combines LSTM, GRU and statistical methods
-   - Adaptive weighting based on historical accuracy
-
-**Common Model Parameters**:
-- **Sequence Length**: Variable (optimized per stock)
-- **Prediction Horizons**: 1, 3, 5, 7, 14, 21, and 30 days
-- **Training Data**: Minimum 6 months of historical data
-- **Validation**: Train-test split (80/20) with sliding window evaluation
-
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Alpha Vantage API](https://www.alphavantage.co/) for financial data
+- [TensorFlow](https://www.tensorflow.org/) for ML capabilities
+- [Shadcn UI](https://ui.shadcn.com/) for beautiful components
 
