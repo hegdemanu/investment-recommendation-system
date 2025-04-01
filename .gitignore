@@ -84,6 +84,7 @@ pythonenv*
 *.bin
 *.npy
 *.npz
+*.safetensors
 ml-service/cache/*
 ml-service/models/checkpoints/*
 ml-service/data/raw/*
