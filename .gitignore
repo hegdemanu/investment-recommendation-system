@@ -11,21 +11,30 @@ coverage
 out/
 build
 dist
+public/workbox-*.js
+public/sw.js
+public/fallback-*.js
 
 # Misc
 .DS_Store
 *.pem
+Thumbs.db
 
 # Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
 # Local env files
 .env*.local
 .env.production
 .env.development
 .env.test
+.env
+.env.*
+!.env.template
+!.env.example
 
 # Vercel
 .vercel
@@ -39,6 +48,8 @@ next-env.d.ts
 .vscode
 *.swp
 *.swo
+.vs
+.DS_Store
 
 # Build outputs
 dist/
@@ -48,6 +59,7 @@ build/
 # Cache
 .turbo
 .cache
+.parcel-cache
 
 # Python
 __pycache__/
@@ -60,25 +72,39 @@ venv/
 .env/
 .venv/
 ENV/
+pythonenv*
 
-# ML models
+# ML models and data
 *.h5
 *.pkl
 *.model
 *.pt
+*.pth
+*.onnx
+*.bin
+*.npy
+*.npz
+ml-service/cache/*
+ml-service/models/checkpoints/*
+ml-service/data/raw/*
 
 # Data
 data/raw/
 data/processed/
+data/external/
+data/interim/
 *.csv
 *.json
 !package.json
 !package-lock.json
 !tsconfig.json
+!turbo.json
+!jest.config.json
 
 # Documentation images and videos (to be added manually)
 !docs/images/
 !docs/videos/
+!docs/assets/
 
 # Virtual Environment
 venv/
@@ -93,14 +119,19 @@ conda-env/
 
 # Project specific
 data/
-models/
+models/*/weights
+models/*/checkpoints
 logs/
 results/
 *.log
 *.csv
+*.sqlite
+*.db
 *.json
 !config/*.json
 !tests/data/*.json
+backend/investment_recommendation.db
+backend/alembic/versions/__pycache__/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -140,9 +171,17 @@ coverage.xml
 .mypy_cache/
 .dmypy.json
 dmypy.json
-node_modules
-backend/api-gateway/.env
-apps/admin/.env
 
 # Large files
 *.mov
+*.mp4
+*.webm
+*.avi
+*.pdf
+*.zip
+*.gz
+*.tgz
+*.tar
+blobs
+# Temporary mock API files (optional, uncomment if needed)
+# frontend-new/src/app/api/mock/
