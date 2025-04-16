@@ -69,7 +69,7 @@ Our investment recommendation system leverages state-of-the-art machine learning
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework:** Next.js 14 with TypeScript
+- **Framework: with TypeScript
 - **Styling:** Tailwind CSS, Shadcn UI
 - **State Management:** React Hooks
 - **Data Visualization:** Chart.js
