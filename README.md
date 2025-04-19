@@ -6,7 +6,7 @@ A comprehensive, full-stack investment recommendation system that leverages AI t
 
 ## 🎥 Demo
 
-Check out our [demo video](investment-system-demo.mp4) to see the system in action, featuring:
+Check out the [demo video](https://drive.google.com/drive/folders/1SxlS1Z5VtovpCCrd5AeRdW3y5Rc_9cyj) to see the system in action, featuring:
 - Interactive Compound Calculator
 - Real-time Market Sentiment Analysis
 - AI-Powered Report Generation
